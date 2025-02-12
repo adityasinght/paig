@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import Tooltip from '@material-ui/core/Tooltip';
 import Switch from '@material-ui/core/Switch';
 
-
-
 const categoriesData = {
   suggested_categories: [
     { name: "Cybercrime", desc: "Security risks and vulnerabilities." },

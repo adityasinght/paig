@@ -79,7 +79,12 @@ const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
 });
 
 const evaluation_purpose_form_def = {
-  purpose: {}
+  purpose: {
+    validators: {
+      errorMessage: 'Purpose is required!',
+      fn: (field) => (field.value || '').trim().length > 0
+    }
+  }
 }
 
 export {

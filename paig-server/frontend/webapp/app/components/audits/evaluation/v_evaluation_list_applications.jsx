@@ -158,13 +158,13 @@ class CEvaluationAppsList extends Component {
         try {
             const response = await this.props.evaluationStore.fetchTargetConfig(model);
             console.log(response, 'DATA')
-            const { config, name, url, id, ai_application_id } = response;
+            const { config, name, url, id } = response;
             this.form.refresh({
                 ...response,
                 method: config.method,
                 headers: Object.entries(config.headers).map(([key, value]) => ({ key, value })),
-                requestBody: JSON.stringify(config.body, null, 2),
-                responseTransform: config.transformResponse,
+                body: JSON.stringify(config.body, null, 2),
+                transformResponse: config.transformResponse,
                 url: config.url || url
             });
         } catch (error) {
@@ -199,6 +199,16 @@ class CEvaluationAppsList extends Component {
         }
         let data = this.form.toJSON();
         data = Object.assign({}, this.form.model, data);
+        // Transform headers array into an object
+        if (Array.isArray(data.headers)) {
+            data.headers = data.headers.reduce((acc, header) => {
+                acc[header.key] = header.value;
+                return acc;
+            }, {});
+        }
+        if (!data.id) {
+            data.ai_application_id = null
+        }
 
         this.modalRef.current.okBtnDisabled(true);
     

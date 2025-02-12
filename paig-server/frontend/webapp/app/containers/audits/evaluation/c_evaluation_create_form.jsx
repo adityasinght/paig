@@ -85,27 +85,27 @@ class CEvaluationForm extends Component {
   handleNext = async () => {
     console.log(this._vState.saving);
     const { activeStep } = this.state;
-    if (activeStep === 1) {
+    if (activeStep === 0) {
       await this.form.validate();
       const form = this.form;
-      if (!form.valid) {
+      if (!this.form.valid) {
         return;
       }
       let data = form.toJSON();
       if (this.form.model) {
         data = Object.assign({}, this.form.model, data);
       }
-      try {
-        this._vState.saving = true;
-        let response = await this.props.evaluationStore.createEvaluation(data);
-        this._vState.step1Response = response;
-        this._vState.categories = response.categories;
-        this._vState.saving = false;
-      } catch (e) {
-        this._vState.saving = false;
-        f.handleError()(e);
-        return;
-      }
+      // try {
+      //   this._vState.saving = true;
+      //   let response = await this.props.evaluationStore.createEvaluation(data);
+      //   this._vState.step1Response = response;
+      //   this._vState.categories = response.categories;
+      //   this._vState.saving = false;
+      // } catch (e) {
+      //   this._vState.saving = false;
+      //   f.handleError()(e);
+      //   return;
+      // }
     }
     this.setState((prevState) => ({
       activeStep: prevState.activeStep + 1
@@ -145,64 +145,63 @@ class CEvaluationForm extends Component {
     const steps = this.getSteps();
 	return (
 		<BaseContainer
-            showRefresh={false}
-            showBackButton={true}
-            backButtonProps={{
-            size: 'small',
-            onClick: handleBackButton
-            }}
-            titleColAttr={{
-                sm: 8,
-                md: 8
-            }}
+      showRefresh={false}
+      showBackButton={true}
+      backButtonProps={{
+      size: 'small',
+      onClick: handleBackButton
+      }}
+      titleColAttr={{
+        sm: 8,
+        md: 8
+      }}
 		>
       <Paper>
         <Grid container spacing={1} ref={ref => this.containerRef = ref}>
-            <Grid item xs={12} sm={3}>
-                <Stepper activeStep={activeStep} orientation="vertical" className="background-color">
-                    {steps.map((label, index) => (
-                    <Step key={label}>
-                        <StepLabel>{label}</StepLabel>
-                    </Step>
-                    ))}
-                </Stepper>
-            </Grid>
-            <Grid item xs={12} sm={9}>
-                {this.renderStepContent(activeStep)}
-            
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <Button
-                        disabled={activeStep === 0 || this._vState.saving}
-                        onClick={this.handleBack}
-                        className="m-r-sm"
-                    >
-                        Back
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={activeStep === steps.length - 1 ? handleCreate : this.handleNext}
-                        data-testid="create-app-btn"
-                        data-track-id="create-app-btn"
-                        disabled={this._vState.saving}
-                    >
-                        {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                        {
-                        this._vState.saving &&
-                        <CircularProgress size="15px" className="m-r-xs" />
-                        }
-                    </Button>
-                    {activeStep === steps.length && (
-                        <Button onClick={this.handleReset}>
-                        Reset
-                        </Button>
-                    )}
-                </Grid>
-            </Grid>
-            </Grid>
+          <Grid item xs={12} sm={3} className='border-right'>
+            <Stepper activeStep={activeStep} orientation="vertical" className="background-color">
+              {steps.map((label, index) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+              ))}
+            </Stepper>
+          </Grid>
+          <Grid item xs={12} sm={9}>
+            {this.renderStepContent(activeStep)}
+          <Grid container spacing={3}>
+              <Grid item xs={12}>
+                  <Button
+                      disabled={activeStep === 0 || this._vState.saving}
+                      onClick={this.handleBack}
+                      className="m-r-sm"
+                  >
+                      Back
+                  </Button>
+                  <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={activeStep === steps.length - 1 ? handleCreate : this.handleNext}
+                      data-testid="create-app-btn"
+                      data-track-id="create-app-btn"
+                      disabled={this._vState.saving}
+                  >
+                      {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                      {
+                      this._vState.saving &&
+                      <CircularProgress size="15px" className="m-r-xs" />
+                      }
+                  </Button>
+                  {activeStep === steps.length && (
+                      <Button onClick={this.handleReset}>
+                      Reset
+                      </Button>
+                  )}
+              </Grid>
+          </Grid>
+          </Grid>
         </Grid>
-        </Paper>
+      </Paper>
 	    </BaseContainer>
 	)}
 }

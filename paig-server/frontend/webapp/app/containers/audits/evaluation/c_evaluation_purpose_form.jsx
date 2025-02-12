@@ -165,37 +165,37 @@ class CEvaluationPurposeForm extends Component {
   };
 
   resolveForm = async () => {
-      await this.form.validate();
-      if (!this.form.valid) {
-        return;
-      }
-      let data = this.form.toJSON();
-      data = Object.assign({}, this.form.model, data);
+    await this.form.validate();
+    if (!this.form.valid) {
+      return;
+    }
+    let data = this.form.toJSON();
+    data = Object.assign({}, this.form.model, data);
 
-      this.modalRef.current.okBtnDisabled(true);
-  
-      if (data.id) {
-        try {
-          await this.props.evaluationStore.updateConfig(data);
-          this.modalRef.current.hide();
-          f.notifySuccess("Configuration updated successfully");
-          this.fetchEvaluationAppsList();
-        } catch (e) {
-          f.handleError(null, null, {modal: this.modalRef.current})(e);
-          console.error("Error updating configuration:", e);
-        }
-      } else {
-        delete data.id;
-        try {
-          await this.props.evaluationStore.addConfig(data);
-          this.modalRef.current.hide();
-          f.notifySuccess("Configuration added successfully");
-          this.fetchEvaluationAppsList();
-        } catch (e) {
-          f.handleError(null, null, {modal: this.modalRef.current})(e);
-          console.error("Error creating configuration:", e);
-        }
+    this.modalRef.current.okBtnDisabled(true);
+
+    if (data.id) {
+      try {
+        await this.props.evaluationStore.updateConfig(data);
+        this.modalRef.current.hide();
+        f.notifySuccess("Configuration updated successfully");
+        this.fetchEvaluationAppsList();
+      } catch (e) {
+        f.handleError(null, null, {modal: this.modalRef.current})(e);
+        console.error("Error updating configuration:", e);
       }
+    } else {
+      delete data.id;
+      try {
+        await this.props.evaluationStore.addConfig(data);
+        this.modalRef.current.hide();
+        f.notifySuccess("Configuration added successfully");
+        this.fetchEvaluationAppsList();
+      } catch (e) {
+        f.handleError(null, null, {modal: this.modalRef.current})(e);
+        console.error("Error creating configuration:", e);
+      }
+    }
   }
   render() {
     const {_vState, cEvalTemplateList} = this;

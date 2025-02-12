@@ -11,7 +11,7 @@ import CEvaluationAppsList from  'components/audits/evaluation/v_evaluation_list
 import { Typography } from '@material-ui/core';
 
 const VEvaluationDetailsForm = observer(({_vState, form}) => {
-  const { eval_id, application_name, purpose, application_client } = form.fields;
+  const { name, application_name } = form.fields;
   const handleApplicationChange = (value) => {
     _vState.application = value;
     form.fields.application_name.value = value;
@@ -31,12 +31,12 @@ const VEvaluationDetailsForm = observer(({_vState, form}) => {
          while adding a New Connection provides flexibility for custom integrations.</p>
       <Grid item xs={12} className='m-b-md'>
         <FormLabel required="true">Evaluation Name</FormLabel>
-        <TextField
-            label=""
-            readOnly
-            variant="outlined"
-            value={_vState.name}
-            fullWidth
+        <FormGroupInput
+          label=""
+          readOnly
+          variant="outlined"
+          fieldObj={name}
+          fullWidth
 		    />
       </Grid>
       Application Configurations
@@ -47,7 +47,12 @@ const VEvaluationDetailsForm = observer(({_vState, form}) => {
 })
 
 const evaluation_details_form_def = {
-  name: {},
+  name: {
+    validators: {
+      errorMessage: 'Evaluation Name is required!',
+      fn: (field) => (field.value || '').trim().length > 0
+    }
+  },
   application_names: {}
 }
 

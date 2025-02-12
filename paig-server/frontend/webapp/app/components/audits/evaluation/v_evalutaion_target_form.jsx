@@ -20,9 +20,8 @@ const VEvalTargetForm = ({form}) => {
         connectionType,
         url,
         headers,
-        requestBody,
-        responseTransform,
-        config,
+        body,
+        transformResponse,
         method
     } = form.fields;
 
@@ -175,7 +174,7 @@ const VEvalTargetForm = ({form}) => {
                     "ai_application_name": "sales_model",
                     "prompt": "{{prompt}}"
                 }`}
-                    fieldObj={requestBody}
+                    fieldObj={body}
                     inputProps={{
                         'data-testid': 'request-body',
                         rows: 4
@@ -186,7 +185,7 @@ const VEvalTargetForm = ({form}) => {
                     as="textarea"
                     label="Response Transform"
                     placeholder={"json.messages && json.messages.length > 0 \n  ? (json.messages.find(message => message.type === 'reply') || {}).content || \"No reply found.\"\n  : \"No response from the server.\"\n"}
-                    fieldObj={responseTransform}
+                    fieldObj={transformResponse}
                     inputProps={{
                         'data-testid': 'response-transform',
                         rows: 4
@@ -199,8 +198,8 @@ const VEvalTargetForm = ({form}) => {
 
 const eval_target_form_def = {
     id: {},
-    ai_application_id: {},
     application_id: {},
+    ai_application_id: {},
     target_id: {},
     desc: {},
     name: {
@@ -212,7 +211,6 @@ const eval_target_form_def = {
     connectionType: {
         defaultValue: 'HTTP/HTTPS-Endpoint'
     },
-    config: {},
     url: {
         validators: {
             errorMessage: 'Endpoint URL is required!',
@@ -222,13 +220,13 @@ const eval_target_form_def = {
     headers: {
         defaultValue: [{ key: 'Authorization', value: 'Bearer {{api_key}}' }]
     },
-    requestBody: {
+    body: {
         validators: {
             errorMessage: 'Request body is required!',
             fn: (field) => (field.value || '').trim().length > 0
         }
     },
-    responseTransform: {},
+    transformResponse: {},
     method: {
         defaultValue: 'POST'
     }
