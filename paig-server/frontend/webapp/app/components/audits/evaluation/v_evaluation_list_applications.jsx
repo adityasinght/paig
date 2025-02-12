@@ -76,19 +76,9 @@ class CEvaluationAppsList extends Component {
         },  f.handleError(this.cEvalAppsList));
     }
 
-    handlePageChange = (isPrevious) => {
-        let page = this._vState.pageNumber;
-        if (isPrevious) {
-            page--;
-            this._vState.prevNextValueList.pop()
-        } else {
-            page++;
-            this._vState.prevNextValueList.push(page)
-        }
-        this._vState.pageNumber = page
-        this.cEvalAppsList.params.page = page || undefined;
+    handlePageChange = () => {
         this.fetchEvaluationAppsList();
-    }
+    };
 
     handleSearchByField = (filter, event) => {
         this._vState.prevNextValueList = [''];
