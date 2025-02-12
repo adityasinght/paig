@@ -128,15 +128,15 @@ class CEvaluationAppsList extends Component {
 
     handleDelete = (model) => {
         f._confirm.show({
-          title: `Delete Report`,
-          children: <div>Are you sure you want to delete report ?</div>,
+          title: `Delete Application Config`,
+          children: <div>Are you sure you want to delete application configs ?</div>,
           btnCancelText: 'Cancel',
           btnOkText: 'Delete',
           btnOkColor: 'secondary',
           btnOkVariant: 'text'
         })
         .then((confirm) => {
-          this.props.evaluationStore.deleteAppTarget(model.id,{
+          this.props.evaluationStore.deleteAppTarget(model.target_id,{
             models: this.cEvalAppsList
           })
           .then(() => {

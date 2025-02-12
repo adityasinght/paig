@@ -28,7 +28,7 @@ def transform_eval_target(eval_target):
         eval_config['body'] = eval_target['body']
     else:
         try:
-            eval_target['body'] = json.loads(eval_target['body'])
+            eval_config['body'] = json.loads(eval_target['body'])
         except Exception as e:
             raise BadRequestException("Invalid body format")
     eval_config['transformResponse'] = eval_target['transformResponse']

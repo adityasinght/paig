@@ -151,22 +151,21 @@ class CEvaluationConfigList extends Component {
     }
 
     handleDelete = (model) => {
-        console.log('model', model);
         f._confirm.show({
-          title: `Delete Report`,
-          children: <div>Are you sure you want to delete report ?</div>,
+          title: `Delete Config`,
+          children: <div>Are you sure you want to delete config ?</div>,
           btnCancelText: 'Cancel',
           btnOkText: 'Delete',
           btnOkColor: 'secondary',
           btnOkVariant: 'text'
         })
         .then((confirm) => {
-          this.props.evaluationStore.deleteReport(model.id,{
+          this.props.evaluationStore.deleteConfig(model.target_id,{
             models: this.cEvalConfigs
           })
           .then(() => {
               confirm.hide();
-              f.notifySuccess('Report Deleted');
+              f.notifySuccess('Config Deleted');
               this.fetchEvaluationConfigs();
           }, f.handleError(null, null, {confirm}));
         }, () => {});

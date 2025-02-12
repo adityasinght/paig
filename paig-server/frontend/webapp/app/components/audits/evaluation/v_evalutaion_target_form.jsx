@@ -170,10 +170,7 @@ const VEvalTargetForm = ({form}) => {
                     required={true}
                     as="textarea"
                     label="Request Body"
-                    placeholder={`{
-                    "ai_application_name": "sales_model",
-                    "prompt": "{{prompt}}"
-                }`}
+                    placeholder={`{\n "ai_application_name": "sales_model",\n"prompt": "{{prompt}}"\n}`}
                     fieldObj={body}
                     inputProps={{
                         'data-testid': 'request-body',

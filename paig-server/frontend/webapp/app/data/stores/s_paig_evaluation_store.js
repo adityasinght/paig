@@ -29,6 +29,12 @@ class EvaluationStore extends BaseStore {
         return this.fetch(data.target_id, opts);
     }
 
+    fetchCategories(data, opts = {}) {
+        opts.path = `/eval/categories`;
+        opts.recordMapper = (json) => new MEvaluation(json);
+        return this.create(data, opts);
+    }
+
     evaluateConfig(id, opts = {}) {
         opts.path= `/eval/${id}/run`;
         opts.recordMapper = (json) => new MEvaluation(json);
@@ -72,22 +78,14 @@ class EvaluationStore extends BaseStore {
         opts.path= `/target/application`;
         return this.delete(id, opts);
     }
-    // Cleanup below functions in the end 
-
-    generateEvaluation(data, opts = {}) {
-        opts.path = `/generate`;
-        opts.recordMapper = (json) => new MEvaluation(json);
-        return this.create(data, opts);
-    }
-
-    createEvaluation(data, opts = {}) {
-        opts.path = `/init`;
-        opts.recordMapper = (json) => new MEvaluation(json);
-        return this.create(data, opts);
-    }
-
+    
     deleteReport(id, opts = {}) {
         opts.path= `/report`;
+        return this.delete(id, opts);
+    }
+
+    deleteEvalConfig(id, opts = {}) {
+        opts.path= `/config`;
         return this.delete(id, opts);
     }
 

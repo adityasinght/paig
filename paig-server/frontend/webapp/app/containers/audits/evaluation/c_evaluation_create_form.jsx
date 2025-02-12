@@ -106,6 +106,9 @@ class CEvaluationForm extends Component {
       //   f.handleError()(e);
       //   return;
       // }
+    } else if (activeStep == 1) {
+      // call
+      // fetchCategories here from store
     }
     this.setState((prevState) => ({
       activeStep: prevState.activeStep + 1
