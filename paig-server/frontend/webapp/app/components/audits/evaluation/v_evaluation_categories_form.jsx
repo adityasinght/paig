@@ -1,81 +1,85 @@
-import React, { useState } from "react";
-import Tooltip from '@material-ui/core/Tooltip';
-import Switch from '@material-ui/core/Switch';
+import React from "react";
+import { 
+  Paper, 
+  Switch, 
+  FormControlLabel, 
+  Checkbox, 
+  FormGroup, 
+  FormControl, 
+  FormLabel,
+  Typography,
+  Box
+} from "@material-ui/core";
+import { makeStyles } from '@material-ui/core/styles';
 
-const categoriesData = {
-  suggested_categories: [
-    { name: "Cybercrime", desc: "Security risks and vulnerabilities." },
-    { name: "PII", desc: "Personally Identifiable Information protection." },
-    { name: "RBAC", desc: "Role-Based Access Control policies." },
-  ],
-  all_categories: [
-    { name: "Cybercrime", desc: "Security risks and vulnerabilities." },
-    { name: "PII", desc: "Personally Identifiable Information protection." },
-    { name: "RBAC", desc: "Role-Based Access Control policies." },
-    { name: "Survey analysts", desc: "Analysis and insights from surveys." },
-    { name: "Decision-Making Support", desc: "Enhancing decision quality." },
-    { name: "Operational Efficiency", desc: "Improving workflow operations." },
-  ],
-};
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    padding: theme.spacing(3),
+  },
+  checkboxGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", 
+    gap: theme.spacing(2),
+  },
+  checkboxItem: {
+    display: "flex",
+    alignItems: "center",
+  },
+  categoryName: {
+    color: theme.palette.text.primary,
+  },
+}));
 
-const EvaluationCategories = () => {
-  const [selectedCategories, setSelectedCategories] = useState(
-    categoriesData.suggested_categories.map((c) => c.name)
-  );
-  const [showSuggested, setShowSuggested] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleToggle = () => setShowSuggested(!showSuggested);
-
-  const handleCheckboxChange = (category) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
-  };
-
-  const filteredCategories = (showSuggested
-    ? categoriesData.suggested_categories
-    : categoriesData.all_categories
-  ).filter((c) => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+const VEvaluationCategories = ({
+  selectedCategories,
+  showSuggested,
+  handleToggle,
+  handleCheckboxChange,
+  filteredCategories
+}) => {
+  const classes = useStyles();
 
   return (
-    <div className="p-4 border rounded-md shadow-md bg-white w-full max-w-lg">
-      <h2 className="text-lg font-semibold">Evaluation Categories</h2>
-      <p className="text-sm text-gray-600">
-        Select categories to focus on specific aspects of model performance.
-      </p>
-
-      <div className="flex items-center my-2">
-        <span className="mr-2">Suggested filters</span>
-        <Switch checked={showSuggested} onChange={handleToggle} />
-      </div>
-
-      <input
-        type="text"
-        placeholder="Search categories..."
-        className="border p-2 w-full rounded-md mb-2"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+    <Paper className={classes.paper}>
+      <FormControlLabel
+        control={
+          <Switch 
+            color="primary" 
+            checked={showSuggested} 
+            onChange={handleToggle} 
+          />
+        }
+        label={<Typography variant="subtitle1">Suggested filters</Typography>}
       />
 
-      <div className="grid grid-cols-2 gap-2">
-        {filteredCategories.map((category) => (
-          <Tooltip key={category.name} title={category.desc} arrow>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={selectedCategories.includes(category.name)}
-                onChange={() => handleCheckboxChange(category.name)}
+      <FormControl component="fieldset" fullWidth>
+        <Typography variant="h6" className="m-t-sm m-b-sm">
+          {showSuggested ? "Suggested Categories" : "All Categories"}
+        </Typography>
+
+        <FormGroup className={classes.checkboxGrid}>
+          {filteredCategories.map((category) => (
+            <Box key={category.Name} className={classes.checkboxItem}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    checked={selectedCategories.includes(category.Name)}
+                    onChange={() => handleCheckboxChange(category.Name)}
+                  />
+                }
+                label={
+                  <Typography variant="body1" className={classes.categoryName}>
+                    {category.Name}
+                  </Typography>
+                }
               />
-              <span>{category.name}</span>
-            </label>
-          </Tooltip>
-        ))}
-      </div>
-    </div>
+            </Box>
+          ))}
+        </FormGroup>
+      </FormControl>  
+    </Paper>
   );
 };
 
-export default EvaluationCategories;
+export default VEvaluationCategories;

@@ -8,13 +8,14 @@ import Grid from '@material-ui/core/Grid';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
+import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
 
 import f from "common-ui/utils/f";
 import BaseContainer from 'containers/base_container';
 import {createFSForm} from 'common-ui/lib/form/fs_form';
 import VEvaluationDetailsForm, {evaluation_details_form_def} from 'components/audits/evaluation/v_evaluation_details_form';
 import CEvaluationPurposeForm from "containers/audits/evaluation/c_evaluation_purpose_form";
-import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
+import CEvaluationCategoriesForm from "containers/audits/evaluation/c_evaluation_categories_form";
 
 @inject("evaluationStore")
 @observer
@@ -22,7 +23,7 @@ class CEvaluationForm extends Component {
   @observable _vState = {
     application: '',
     saving: false,
-    step1Response: null,
+    purposeResponse: null,
     step2Response: null,
     categories: [],
     static_prompts: [{"prompt": "", "criteria": ""}]
@@ -62,7 +63,7 @@ class CEvaluationForm extends Component {
     if (this.Modal) {
       this.Modal.okBtnDisabled(true);
     }
-    let form1Data = this._vState.step1Response;
+    let form1Data = this._vState.purposeResponse;
     form1Data.categories = this._vState.categories;
     form1Data.static_prompts = this._vState.static_prompts;
     try {
@@ -95,20 +96,27 @@ class CEvaluationForm extends Component {
       if (this.form.model) {
         data = Object.assign({}, this.form.model, data);
       }
-      // try {
-      //   this._vState.saving = true;
-      //   let response = await this.props.evaluationStore.createEvaluation(data);
-      //   this._vState.step1Response = response;
-      //   this._vState.categories = response.categories;
-      //   this._vState.saving = false;
-      // } catch (e) {
-      //   this._vState.saving = false;
-      //   f.handleError()(e);
-      //   return;
-      // }
     } else if (activeStep == 1) {
-      // call
-      // fetchCategories here from store
+      const purposeForm = this.purposeForm.form;
+      await purposeForm.validate();
+      if (!purposeForm.valid) {
+        f.notifyError("Please fill in the required fields.");
+        return;
+      }
+      let data = purposeForm.toJSON();
+      if (purposeForm.model) {
+        data = Object.assign({}, purposeForm.model, data);
+      }
+      try {
+        this._vState.saving = true;
+        let response = await this.props.evaluationStore.addCategories(data);
+        this._vState.purposeResponse = response;
+        this._vState.saving = false;
+      } catch (e) {
+        this._vState.saving = false;
+        f.handleError()(e);
+        return;
+      }
     }
     this.setState((prevState) => ({
       activeStep: prevState.activeStep + 1
@@ -128,15 +136,14 @@ class CEvaluationForm extends Component {
   }
 
   renderStepContent = (step) => {
-    const { step1Response, step2Response } = this._vState;
+    const { purposeResponse, step2Response } = this._vState;
     switch (step) {
       case 0:
         return <VEvaluationDetailsForm _vState={this._vState} form={this.form} />;
       case 1:
-        return <CEvaluationPurposeForm _vState={this._vState}/>;
+        return <CEvaluationPurposeForm ref={(ref) => (this.purposeForm = ref)} _vState={this._vState}/>;
       case 2:
-        return <div></div>
-        // return <VEvaluationCustomisedPromptsForm _vState={this._vState} form={this.form2} step2Response={step2Response} />;
+        return <CEvaluationCategoriesForm _vState={this._vState}/>;
       default:
         return 'Unknown step';
     }

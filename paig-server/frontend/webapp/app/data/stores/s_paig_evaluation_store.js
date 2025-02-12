@@ -29,7 +29,8 @@ class EvaluationStore extends BaseStore {
         return this.fetch(data.target_id, opts);
     }
 
-    fetchCategories(data, opts = {}) {
+    
+    addCategories(data, opts = {}) {
         opts.path = `/eval/categories`;
         opts.recordMapper = (json) => new MEvaluation(json);
         return this.create(data, opts);
