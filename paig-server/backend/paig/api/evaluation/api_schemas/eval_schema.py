@@ -22,7 +22,6 @@ class BaseEvaluationView(BaseModel):
     passed: str
     failed: str
     id: int
-    report_id: str
     create_time: Optional[datetime]
     report_url: str = Field(default=REPORT_URL)
     model_config = ConfigDict(

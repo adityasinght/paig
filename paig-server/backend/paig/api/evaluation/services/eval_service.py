@@ -46,15 +46,17 @@ def threaded_run_evaluation(eval_id, eval_config, target_hosts, application_name
             "purpose": eval_config.purpose,
         }
         eval_obj = PAIGEvaluator()
+        generated_prompts_config = dict()
         if not eval_config.generated_config:
             try:
-                generated_prompts_config = eval_obj.generate_prompts(application_config=application_config, plugins=categories, targets=target_hosts)
-                if generated_prompts_config['status'] != 'success':
+                generated_prompts_config_result = eval_obj.generate_prompts(application_config=application_config, plugins=categories, targets=target_hosts)
+                if generated_prompts_config_result['status'] != 'success':
                     update_eval_params['status'] = 'FAILED'
                 else:
                     update_eval_params['status'] = 'EVALUATING'
+                    generated_prompts_config = generated_prompts_config_result['result']
                     eval_config_params = {
-                        'generated_config': json.dumps(generated_prompts_config['result'])
+                        'generated_config': json.dumps(generated_prompts_config)
                     }
                     await update_table_fields('eval_config_history', eval_config_params, 'eval_config_id', eval_config.id)
                 logger.info('Prompts generated')
@@ -63,7 +65,7 @@ def threaded_run_evaluation(eval_id, eval_config, target_hosts, application_name
                 logger.error(str(traceback.print_exc()))
                 update_eval_params['status'] = 'FAILED'
             finally:
-                await update_table_fields('evaluation', update_eval_params, 'eval_id', eval_id)
+                await update_table_fields('eval_run', update_eval_params, 'eval_id', eval_id)
         else:
             generated_prompts_config = eval_config.generated_config
             logger.info('Prompts already generated')
@@ -82,7 +84,7 @@ def threaded_run_evaluation(eval_id, eval_config, target_hosts, application_name
                     user_prompts_list.append(prompt_obj)
         custom_prompts = {'tests': user_prompts_list}
         report = eval_obj.evaluate(
-            eval_id=eval_id,
+            paig_eval_id=eval_id,
             generated_prompts=generated_prompts_config,
             custom_prompts=custom_prompts,
             verbose=False
@@ -107,8 +109,8 @@ def threaded_run_evaluation(eval_id, eval_config, target_hosts, application_name
                 update_eval_params['failed'] = ', '.join(total_failed)
             else:
                 update_eval_params['status'] = 'FAILED'
-                logger.error('Evaluation failed' + str(report['message']))
-            await update_table_fields('evaluation', update_eval_params, 'eval_id', eval_id)
+                logger.error('Evaluation failed:- ' + str(report['message']))
+            await update_table_fields('eval_run', update_eval_params, 'eval_id', eval_id)
         except Exception as err:
             logger.error('Error while updating DB: ' + str(err))
         return report
@@ -160,7 +162,7 @@ def threaded_rerun_evaluation(eval_id, generated_prompts_config, static_prompts)
                 total_failed.append(str(metrics['testFailCount']))
             update_eval_params['passed'] = ', '.join(total_passed)
             update_eval_params['failed'] = ', '.join(total_failed)
-            await update_table_fields('evaluation', update_eval_params, 'eval_id', eval_id)
+            await update_table_fields('eval_run', update_eval_params, 'eval_id', eval_id)
         except Exception as err:
             logger.error('Error while updating DB: ' + str(err))
 
@@ -197,7 +199,7 @@ class EvaluationService:
         return fina_target, app_names
 
     @Transactional(propagation=Propagation.REQUIRED)
-    async def run_evaluation(self, eval_config_id, owner):
+    async def run_evaluation(self, eval_config_id, owner, base_run_id=None):
         eval_config = await self.eval_config_history_repository.get_eval_config_by_config_id(eval_config_id)
         if eval_config is None:
             raise BadRequestException('Invalid evaluation config ID')
@@ -213,9 +215,10 @@ class EvaluationService:
             "config_id": eval_config_id,
             "owner": owner,
             "eval_id": eval_id,
+            "purpose": eval_config.purpose,
             "config_name": eval_config.name,
             "application_names": ','.join(application_names),
-            "name": eval_id
+            "base_run_id": base_run_id
         }
         eval_model= await self.evaluation_repository.create_new_evaluation(eval_params)
         asyncio.create_task(
@@ -261,4 +264,9 @@ class EvaluationService:
 
     async def rerun_evaluation_by_id(self, eval_id, owner):
         existing_evaluation = await self.evaluation_repository.get_evaluations_by_field('eval_id', eval_id)
-        return await(self.run_evaluation(existing_evaluation.config_id, owner))
+        if existing_evaluation is None:
+            raise BadRequestException('Invalid evaluation ID')
+        base_run_id = existing_evaluation.eval_id
+        if existing_evaluation.base_run_id:
+            base_run_id = existing_evaluation.base_run_id
+        return await self.run_evaluation(existing_evaluation.config_id, owner, base_run_id=base_run_id)

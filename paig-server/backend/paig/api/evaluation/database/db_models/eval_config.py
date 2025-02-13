@@ -39,5 +39,6 @@ class EvaluationConfigHistoryModel(CommonBase):
     eval_runs = relationship(
         "EvaluationModel",
         primaryjoin="EvaluationModel.config_id == foreign(EvaluationConfigHistoryModel.id)",
-        viewonly=True
+        viewonly=True,
+        uselist=True
     )

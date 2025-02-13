@@ -19,14 +19,14 @@ class EvaluationController:
     async def create_and_run_evaluation(self, eval_params, user):
         try:
             create_config = await self.evaluation_config_service.create_eval_config(eval_params)
-            resp = await self.run_evaluation(create_config.id, user['username'])
+            resp = await self.run_evaluation(create_config.id, user)
             return resp
         except Exception as e:
             return {"error": str(e)}
 
     async def run_evaluation(self, eval_config_id, user):
         try:
-            resp = await self.evaluation_service.run_evaluation(eval_config_id, user['username'])
+            resp = await self.evaluation_service.run_evaluation(eval_config_id, user)
             return resp
         except Exception as e:
             print(traceback.print_exc())

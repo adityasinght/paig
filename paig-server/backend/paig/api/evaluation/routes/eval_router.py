@@ -21,7 +21,7 @@ async def evaluation_save_and_run(
     evaluation_controller: EvaluationController = evaluator_controller_instance,
     user: dict = Depends(get_auth_user)
 ):
-    return await evaluation_controller.create_and_run_evaluation(body_params.model_dump(), user)
+    return await evaluation_controller.create_and_run_evaluation(body_params.model_dump(), user['username'])
 
 
 @evaluation_router.post("/{config_id}/run")
@@ -31,7 +31,7 @@ async def evaluation_run(
     user: dict = Depends(get_auth_user),
 ):
     try:
-        return await evaluation_controller.run_evaluation(config_id, user)
+        return await evaluation_controller.run_evaluation(config_id, user['username'])
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
