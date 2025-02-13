@@ -36,6 +36,12 @@ class EvaluationStore extends BaseStore {
         return this.create(data, opts);
     }
 
+    saveEvaluationConfig(data, opts = {}) {
+        opts.path = '/eval/save_and_run';
+        opts.recordMapper = (json) => new MEvaluation(json);
+        return this.create(data, opts);
+    }
+
     evaluateConfig(id, opts = {}) {
         opts.path= `/eval/${id}/run`;
         opts.recordMapper = (json) => new MEvaluation(json);
@@ -95,6 +101,7 @@ class EvaluationStore extends BaseStore {
         opts.recordMapper = (json) => new MEvaluation(json);
         return this.create({}, opts);
     }
+
 
 }
 

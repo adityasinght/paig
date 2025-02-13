@@ -10,7 +10,7 @@ import {aiApplicationLookup} from 'components/reports/fields_lookup';
 import CEvaluationAppsList from  'components/audits/evaluation/v_evaluation_list_applications'
 import { Typography } from '@material-ui/core';
 
-const VEvaluationDetailsForm = observer(({_vState, form}) => {
+const VEvaluationDetailsForm = observer(({form, _vState}) => {
   const { name, application_name } = form.fields;
   const handleApplicationChange = (value) => {
     _vState.application = value;
@@ -40,23 +40,30 @@ const VEvaluationDetailsForm = observer(({_vState, form}) => {
 		    />
       </Grid>
       Application Configurations
-      <CEvaluationAppsList></CEvaluationAppsList>
+      <CEvaluationAppsList form={form}></CEvaluationAppsList>
     </box>
     </Fragment>
   );
 })
 
-const evaluation_details_form_def = {
+const evaluation_form_def = {
   name: {
     validators: {
       errorMessage: 'Evaluation Name is required!',
       fn: (field) => (field.value || '').trim().length > 0
     }
   },
-  application_names: {}
+  application_ids: {},
+  purpose: {
+    validators: {
+      errorMessage: 'Purpose is required!',
+      fn: (field) => (field.value || '').trim().length > 0
+    }
+  },
+  categories: {}
 }
 
 export default VEvaluationDetailsForm;
 export {
-  evaluation_details_form_def
+  evaluation_form_def
 }

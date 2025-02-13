@@ -1,18 +1,16 @@
 import React, { Fragment } from "react";
 import { observer } from "mobx-react";
+
 import Grid from "@material-ui/core/Grid";
 import FormLabel from "@material-ui/core/FormLabel";
 import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
-import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import CallMadeIcon from '@material-ui/icons/CallMade';
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
-import CardActions from "@material-ui/core/CardActions";
-import { FormGroupInput } from "common-ui/components/form_fields";
 import Chip from "@material-ui/core/Chip";
 
 import f from 'common-ui/utils/f';
+import { FormGroupInput } from "common-ui/components/form_fields";
 
 const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
   const { purpose } = form.fields;
@@ -77,18 +75,5 @@ const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
     </Fragment>
   );
 });
-
-const evaluation_purpose_form_def = {
-  purpose: {
-    validators: {
-      errorMessage: 'Purpose is required!',
-      fn: (field) => (field.value || '').trim().length > 0
-    }
-  }
-}
-
-export {
-  evaluation_purpose_form_def
-}
 
 export default VEvaluationPurposeForm;

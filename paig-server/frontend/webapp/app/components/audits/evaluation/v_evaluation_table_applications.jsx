@@ -22,17 +22,22 @@ class VEvaluationAppsTable extends Component{
     };
   }
 
-  handleSelectRow = (id) => {
+  handleSelectRow = (id, target_id) => {
     this.setState((prevState) => {
       let selectedRows = [...prevState.selectedRows];
+      let selectedTargetIds = this.props.form.fields.application_ids.value.split(',').filter(Boolean);
       
       if (selectedRows.includes(id)) {
         selectedRows = selectedRows.filter(rowId => rowId !== id);
+        selectedTargetIds = selectedTargetIds.filter(tid => tid !== target_id);
       } else if (selectedRows.length < 2) {
         selectedRows.push(id);
+        selectedTargetIds.push(target_id);
       } else {
         return { showAlert: true };
       }
+
+      this.props.form.fields.application_ids.value = selectedTargetIds.join(',');
       
       if (this.props.onSelectionChange) {
         this.props.onSelectionChange(selectedRows);
@@ -68,23 +73,23 @@ class VEvaluationAppsTable extends Component{
           color='primary'
           data-test="select-all"
           checked={this.state.selectedRows.includes(model.id)}
-          onChange={() => this.handleSelectRow(model.id)}
+          onChange={() => this.handleSelectRow(model.id, model.target_id)}
           disabled={!model.target_id}
         />
       </TableCell>,
       <TableCell key="2">{model.name || "--"}</TableCell>,
       <TableCell key="3">{model.url || "--"}</TableCell>,
       <TableCell key="9" column="actions">
-          <div className="d-flex">
-            <ActionButtonsWithPermission
-              permission={permission}
-              hideEdit={false}
-              hideDelete={false}
-              onDeleteClick={() => handleDelete(model)}
-              onEditClick={() => handleEdit(model)}
-            />
-          </div>
-        </TableCell>
+        <div className="d-flex">
+          <ActionButtonsWithPermission
+            permission={permission}
+            hideEdit={false}
+            hideDelete={false}
+            onDeleteClick={() => handleDelete(model)}
+            onEditClick={() => handleEdit(model)}
+          />
+        </div>
+      </TableCell>
     ]
     return rows;
   }

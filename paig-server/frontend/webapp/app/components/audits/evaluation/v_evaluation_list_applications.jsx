@@ -252,6 +252,7 @@ class CEvaluationAppsList extends Component {
                     </Grid>
                 </Grid>
                 <VEvaluationAppsTable
+                    form={this.props.form}
                     data={this.cEvalAppsList}
                     pageChange={this.handlePageChange}
                     _vState={_vState}

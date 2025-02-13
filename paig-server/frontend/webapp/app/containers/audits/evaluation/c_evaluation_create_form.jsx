@@ -9,11 +9,12 @@ import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
+import StepConnector from '@material-ui/core/StepConnector';
 
 import f from "common-ui/utils/f";
 import BaseContainer from 'containers/base_container';
 import {createFSForm} from 'common-ui/lib/form/fs_form';
-import VEvaluationDetailsForm, {evaluation_details_form_def} from 'components/audits/evaluation/v_evaluation_details_form';
+import VEvaluationDetailsForm, {evaluation_form_def} from 'components/audits/evaluation/v_evaluation_details_form';
 import CEvaluationPurposeForm from "containers/audits/evaluation/c_evaluation_purpose_form";
 import CEvaluationCategoriesForm from "containers/audits/evaluation/c_evaluation_categories_form";
 
@@ -24,14 +25,14 @@ class CEvaluationForm extends Component {
     application: '',
     saving: false,
     purposeResponse: null,
-    step2Response: null,
+    categoriesResponse: null,
     categories: [],
     static_prompts: [{"prompt": "", "criteria": ""}]
   }
 	constructor(props) {
 		super(props);
 
-    this.form = createFSForm(evaluation_details_form_def);
+    this.evalForm = createFSForm(evaluation_form_def);
     this.state = {
       activeStep: 0
     };
@@ -47,32 +48,27 @@ class CEvaluationForm extends Component {
 
   handlePostCreate = (response) => {
     //handle post final form submission
-    this.props.history.replace('/eval_reports/');
+    this.props.history.replace('/eval_configs/');
   }
 
   handleCreate = async () => {
-    await this.form2.validate();
-    const form = this.form2;
-    if (!form.valid) {
-      return;
-    }
-    let data = form.toJSON();
-    if (form.model) {
-      data = Object.assign({}, form.model, data);
-    }
-    if (this.Modal) {
-      this.Modal.okBtnDisabled(true);
-    }
-    let form1Data = this._vState.purposeResponse;
-    form1Data.categories = this._vState.categories;
-    form1Data.static_prompts = this._vState.static_prompts;
+    const form = this.evalForm;
+    const formData = form.toJSON();
+    const data = {
+      purpose: formData.purpose,
+      name: formData.name,
+      categories: formData.categories,
+      custom_prompts: [],
+      application_ids: formData.application_ids
+    };
+
     try {
       this._vState.saving = true;
-      let response = await this.props.evaluationStore.generateEvaluation(form1Data);
-      f.notifySuccess('Evaluation generated successfully');
+      let response = await this.props.evaluationStore.saveEvaluationConfig(data);
+      this._vState.saving = false;
+      f.notifySuccess('You evaluation is triggered successfully');
       this.handlePostCreate(response);
       this._vState.saving = false;
-      this.props.history.push('/evaluation_reports');
     } catch(e) {
       this._vState.saving = false;
       f.handleError()(e);
@@ -84,29 +80,19 @@ class CEvaluationForm extends Component {
   }
 
   handleNext = async () => {
-    console.log(this._vState.saving);
     const { activeStep } = this.state;
+    const form = this.evalForm;
     if (activeStep === 0) {
-      await this.form.validate();
-      const form = this.form;
-      if (!this.form.valid) {
-        return;
-      }
-      let data = form.toJSON();
-      if (this.form.model) {
-        data = Object.assign({}, this.form.model, data);
-      }
-    } else if (activeStep == 1) {
-      const purposeForm = this.purposeForm.form;
-      await purposeForm.validate();
-      if (!purposeForm.valid) {
+      if (!form.fields.name.value) {
         f.notifyError("Please fill in the required fields.");
         return;
       }
-      let data = purposeForm.toJSON();
-      if (purposeForm.model) {
-        data = Object.assign({}, purposeForm.model, data);
+    } else if (activeStep == 1) {
+      if (!form.fields.purpose.value) {
+        f.notifyError("Please fill in the required fields.");
+        return;
       }
+      const data = { purpose: form.fields.purpose.value };
       try {
         this._vState.saving = true;
         let response = await this.props.evaluationStore.addCategories(data);
@@ -136,21 +122,24 @@ class CEvaluationForm extends Component {
   }
 
   renderStepContent = (step) => {
-    const { purposeResponse, step2Response } = this._vState;
     switch (step) {
       case 0:
-        return <VEvaluationDetailsForm _vState={this._vState} form={this.form} />;
+        return <VEvaluationDetailsForm form={this.evalForm} _vState={this._vState}/>;
       case 1:
-        return <CEvaluationPurposeForm ref={(ref) => (this.purposeForm = ref)} _vState={this._vState}/>;
+        return <CEvaluationPurposeForm form={this.evalForm} _vState={this._vState}/>;
       case 2:
-        return <CEvaluationCategoriesForm _vState={this._vState}/>;
+        return <CEvaluationCategoriesForm form={this.evalForm} _vState={this._vState}/>;
       default:
         return 'Unknown step';
     }
   }
 
+  handleSaveConfiguration = () => {
+    console.log("Save Configuration");
+  } 
+
   render() {
-    const {handleBackButton, handleCreate} = this;
+    const {handleBackButton, handleCreate, handleSaveConfiguration} = this;
     const { activeStep } = this.state;
     const steps = this.getSteps();
 	return (
@@ -169,7 +158,7 @@ class CEvaluationForm extends Component {
       <Paper>
         <Grid container spacing={1} ref={ref => this.containerRef = ref}>
           <Grid item xs={12} sm={3} className='border-right'>
-            <Stepper activeStep={activeStep} orientation="vertical" className="background-color">
+            <Stepper activeStep={activeStep} orientation="vertical" connector={<StepConnector style={{padding: 0}} />} >
               {steps.map((label, index) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
@@ -179,40 +168,54 @@ class CEvaluationForm extends Component {
           </Grid>
           <Grid item xs={12} sm={9}>
             {this.renderStepContent(activeStep)}
-          <Grid container spacing={3}>
+            <Grid container spacing={3} justify="space-between">
+              <Grid item></Grid>
               <Grid item xs={12}>
-                  <Button
-                      disabled={activeStep === 0 || this._vState.saving}
-                      onClick={this.handleBack}
-                      className="m-r-sm"
-                  >
-                      Back
+                <Button
+                  disabled={activeStep === 0 || this._vState.saving}
+                  onClick={this.handleBack}
+                  className="m-r-sm"
+                >
+                  Back
+                </Button>
+                {activeStep === steps.length - 1 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSaveConfiguration}
+                  data-testid="save-config-btn"
+                  data-track-id="save-config-btn"
+                  disabled={this._vState.saving}
+                  className="m-l-sm"
+                >
+                  Save Configuration
+                </Button>
+                )}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={activeStep === steps.length - 1 ? handleCreate : this.handleNext}
+                  data-testid="create-app-btn"
+                  data-track-id="create-app-btn"
+                  disabled={this._vState.saving}
+                >
+                  {activeStep === steps.length - 1 ? 'Save And Run' : 'Next'}
+                  {
+                    this._vState.saving &&
+                    <CircularProgress size="15px" className="m-r-xs" />
+                  }
+                </Button>
+                {activeStep === steps.length && (
+                  <Button onClick={this.handleReset}>
+                    Reset
                   </Button>
-                  <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={activeStep === steps.length - 1 ? handleCreate : this.handleNext}
-                      data-testid="create-app-btn"
-                      data-track-id="create-app-btn"
-                      disabled={this._vState.saving}
-                  >
-                      {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                      {
-                      this._vState.saving &&
-                      <CircularProgress size="15px" className="m-r-xs" />
-                      }
-                  </Button>
-                  {activeStep === steps.length && (
-                      <Button onClick={this.handleReset}>
-                      Reset
-                      </Button>
-                  )}
+                )}
               </Grid>
-          </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </Paper>
-	    </BaseContainer>
+	  </BaseContainer>
 	)}
 }
 

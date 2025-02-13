@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
 import {inject, observer} from 'mobx-react';
 
-import {Grid} from '@material-ui/core';
 import f from 'common-ui/utils/f';
-import VEvaluationPurposeForm, {evaluation_purpose_form_def} from "components/audits/evaluation/v_evalutaion_purpose_form";
-import { createFSForm } from 'common-ui/lib/form/fs_form';
+import VEvaluationPurposeForm from "components/audits/evaluation/v_evalutaion_purpose_form";
 
 const hardcodedTemplates = [
   {
@@ -30,10 +28,8 @@ const hardcodedTemplates = [
 @inject('evaluationStore')
 @observer
 class CEvaluationPurposeForm extends Component {
-  _vState = {}
   constructor(props) {
     super(props);
-    this.form = createFSForm(evaluation_purpose_form_def);
     this.cEvalTemplateList = f.initCollection();
     this.cEvalTemplateList.params = {
       size: 3,
@@ -166,11 +162,12 @@ class CEvaluationPurposeForm extends Component {
   };
 
   render() {
-    const {_vState, cEvalTemplateList} = this;
+    const {cEvalTemplateList} = this;
+    const {_vState, form} = this.props
     
     return (
       <>
-        <VEvaluationPurposeForm _vState={this._vState} data={cEvalTemplateList} form={this.form}/>
+        <VEvaluationPurposeForm _vState={_vState} data={cEvalTemplateList} form={form}/>
       </>
     );
   }

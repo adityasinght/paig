@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+
 import VEvaluationCategoriesForm from "components/audits/evaluation/v_evaluation_categories_form";
 
 class CEvaluationCategoriesForm extends Component {
@@ -16,12 +17,8 @@ class CEvaluationCategoriesForm extends Component {
     }));
   };
 
-  handleCheckboxChange = (category) => {
-    this.setState((prevState) => ({
-      selectedCategories: prevState.selectedCategories.includes(category)
-        ? prevState.selectedCategories.filter((c) => c !== category)
-        : [...prevState.selectedCategories, category]
-    }));
+  setSelectedCategories = (selectedCategories) => {
+    this.setState({ selectedCategories });
   };
 
   render() {
@@ -32,12 +29,13 @@ class CEvaluationCategoriesForm extends Component {
 
     return (
       <VEvaluationCategoriesForm
+        form={this.props.form}
         selectedCategories={selectedCategories}
         showSuggested={showSuggested}
         handleToggle={this.handleToggle}
-        handleCheckboxChange={this.handleCheckboxChange}
         filteredCategories={filteredCategories}
         setSearchTerm={this.setSearchTerm}
+        setSelectedCategories={this.setSelectedCategories}
       />
     );
   }

@@ -5,10 +5,9 @@ import {
   FormControlLabel, 
   Checkbox, 
   FormGroup, 
-  FormControl, 
-  FormLabel,
+  FormControl,
   Typography,
-  Box
+  Tooltip
 } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -30,14 +29,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const VEvaluationCategories = ({
-  selectedCategories,
-  showSuggested,
-  handleToggle,
-  handleCheckboxChange,
-  filteredCategories
-}) => {
+const VEvaluationCategories = ({ form, selectedCategories, showSuggested, handleToggle, filteredCategories, setSelectedCategories }) => {
+  const { categories } = form.fields;
   const classes = useStyles();
+
+  const handleCheckboxChange = (category) => {
+    const updatedCategories = selectedCategories.includes(category)
+      ? selectedCategories.filter((c) => c !== category)
+      : [...selectedCategories, category];
+    setSelectedCategories(updatedCategories);
+    console.log(updatedCategories, 'updatedCategories')
+    categories.value = updatedCategories;
+  };
 
   return (
     <Paper className={classes.paper}>
@@ -59,22 +62,23 @@ const VEvaluationCategories = ({
 
         <FormGroup className={classes.checkboxGrid}>
           {filteredCategories.map((category) => (
-            <Box key={category.Name} className={classes.checkboxItem}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={selectedCategories.includes(category.Name)}
-                    onChange={() => handleCheckboxChange(category.Name)}
-                  />
-                }
-                label={
+            <FormControlLabel
+              key={category.Name}
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={selectedCategories.includes(category.Name)}
+                  onChange={() => handleCheckboxChange(category.Name)}
+                />
+              }
+              label={
+                <Tooltip key={category.Name} title={category.Description} arrow placement="top">  
                   <Typography variant="body1" className={classes.categoryName}>
                     {category.Name}
                   </Typography>
-                }
-              />
-            </Box>
+                </Tooltip>
+              }
+            />
           ))}
         </FormGroup>
       </FormControl>  
