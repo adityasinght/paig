@@ -130,7 +130,7 @@ class VEvaluationReportTable extends Component{
   getRowData = (model) => {
     const {handleDelete, handleReRun, handleEdit, handleView, permission, importExportUtil, handleInvite} = this.props;
     let rows = [
-      <TableCell key="1">{model.name}</TableCell>,
+      <TableCell key="1">{model.eval_id}</TableCell>,
       <TableCell key="2">{model.config_name || "--"}</TableCell>,
       <TableCell key="3">{this.getApplicationNameCell(model.application_name) || "--"}</TableCell>,
       //- <TableCell key="4">{model.application_client || "--"}</TableCell>,

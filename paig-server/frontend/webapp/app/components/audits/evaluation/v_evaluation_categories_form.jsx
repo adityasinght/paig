@@ -18,11 +18,12 @@ import Alert from '@material-ui/lab/Alert';
 const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(3),
+    border: `1px solid ${theme.palette.divider}`
   },
   checkboxGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", 
-    gap: theme.spacing(2),
+    gap: "8px"
   },
   checkboxItem: {
     display: "flex",
@@ -66,9 +67,9 @@ const VEvaluationCategories = observer(({ form, selectedCategories, showSuggeste
         label={<Typography variant="subtitle1">Suggested filters</Typography>}
         className="m-t-md m-b-md"
       />
-      <Paper className={classes.paper}>
+      <Paper className={classes.paper} elevation={0}>
         <FormControl component="fieldset" fullWidth>
-          <Typography variant="h6" className="m-t-sm m-b-sm">
+          <Typography variant="h6" className="m-b-sm">
             {showSuggested ? "Suggested Categories" : "All Categories"}
           </Typography>
 

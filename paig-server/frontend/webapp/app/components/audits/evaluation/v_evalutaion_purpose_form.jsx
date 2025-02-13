@@ -40,12 +40,12 @@ const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
           data-testid="purpose"
         />
       </Grid>
-        Example Purpose: As a finance team member, consider a comprehensive evaluation of the financial model to assess its accuracy, identify potential biases, and ensure compliance with relevant regulations.
-      <Typography className="m-t-md">Templates</Typography>
+        Example Purpose:As a finance team member, consider a comprehensive evaluation of the financial model to assess its accuracy, identify potential biases, and ensure compliance with relevant regulations.
+      <Typography className="m-t-lg m-b-lg" >Templates</Typography>
       <Grid container spacing={2}>
         {f.models(data).map((template, index) => (
           <Grid item xs={12} sm={6} key={index}>
-            <Card onClick={() => handleTemplateSelect(template.description)} className="pointer">
+            <Card onClick={() => handleTemplateSelect(template.description)} className="pointer" style={{ minHeight: '140px' }}>
               <CardContent>
                 <Typography
                   variant="subtitle1"

@@ -49,7 +49,7 @@ class CEvaluationForm extends Component {
 
   handlePostCreate = (response) => {
     //handle post final form submission
-    this.props.history.replace('/eval_configs/');
+    this.props.history.replace('/eval_reports');
   }
 
   handleCreate = async () => {
@@ -191,20 +191,20 @@ class CEvaluationForm extends Component {
                     <Button
                       disabled={activeStep === 0 || this._vState.saving}
                       onClick={this.handleBack}
-                      className="m-r-sm"
+                      className="m-r-md"
                     >
                       Back
                     </Button>
                   }
                   {activeStep === steps.length - 1 && (
                     <Button
-                      variant="contained"
+                      variant="outlined"
                       color="primary"
                       onClick={handleSaveConfiguration}
                       data-testid="save-config-btn"
                       data-track-id="save-config-btn"
                       disabled={this._vState.saving}
-                      className="m-l-sm"
+                      className="m-r-sm"
                     >
                       Save Configuration
                     </Button>
