@@ -100,6 +100,7 @@ class VEvaluationAppsTable extends Component{
     return (
       <>
         <Table
+          hasElevation={false}
           data={data}
           getHeaders={this.getHeaders}
           getRowData={this.getRowData}

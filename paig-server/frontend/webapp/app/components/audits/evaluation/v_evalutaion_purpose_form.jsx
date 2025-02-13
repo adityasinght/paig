@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { observer } from "mobx-react";
 
 import Grid from "@material-ui/core/Grid";
@@ -8,6 +8,8 @@ import CallMadeIcon from '@material-ui/icons/CallMade';
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Chip from "@material-ui/core/Chip";
+import Paper from '@material-ui/core/Paper';
+import { Box } from '@material-ui/core';
 
 import f from 'common-ui/utils/f';
 import { FormGroupInput } from "common-ui/components/form_fields";
@@ -24,12 +26,11 @@ const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
   };
 
   return (
-    <Fragment>
-      <Typography variant="h6">Purpose</Typography>
-      <Typography variant="body2">
-        To ensure accurate assessments, clearly define your evaluation goals by specifying which aspects of model performance are most important, such as accuracy, relevance, safety, or bias. You can select one of the provided templates and modify it, or create a completely new evaluation tailored to your needs.
+    <Box component={Paper} elevation={0} p="15px">
+      <Typography variant="h6" data-testid="header">
+        Purpose 
       </Typography>
-
+      <p>To ensure accurate assessments, clearly define your evaluation goals by specifying which aspects of model performance are most important, such as accuracy, relevance, safety, or bias. You can select one of the provided templates and modify it, or create a completely new evaluation tailored to your needs.</p>
       <Grid item xs={12}>
         <FormLabel required>Purpose</FormLabel>
         <FormGroupInput 
@@ -39,12 +40,8 @@ const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
           data-testid="purpose"
         />
       </Grid>
-
-      <Typography variant="body2">
-        <b>Example Purpose:</b> As a finance team member, consider a comprehensive evaluation of the financial model to assess its accuracy, identify potential biases, and ensure compliance with relevant regulations.
-      </Typography>
-
-      <Typography variant="h6">Templates</Typography>
+        Example Purpose: As a finance team member, consider a comprehensive evaluation of the financial model to assess its accuracy, identify potential biases, and ensure compliance with relevant regulations.
+      <Typography className="m-t-md">Templates</Typography>
       <Grid container spacing={2}>
         {f.models(data).map((template, index) => (
           <Grid item xs={12} sm={6} key={index}>
@@ -72,7 +69,7 @@ const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
           </Grid>
         ))}
       </Grid>
-    </Fragment>
+    </Box>
   );
 });
 

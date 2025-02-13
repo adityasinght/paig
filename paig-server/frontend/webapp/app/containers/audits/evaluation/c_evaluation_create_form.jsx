@@ -10,6 +10,7 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
 import StepConnector from '@material-ui/core/StepConnector';
+import Box from '@material-ui/core/Box';
 
 import f from "common-ui/utils/f";
 import BaseContainer from 'containers/base_container';
@@ -115,6 +116,10 @@ class CEvaluationForm extends Component {
     }));
   }
 
+  handleCancel = () => {
+    this.props.history.push('/eval_configs');
+  }
+
   handleReset = () => {
     this.setState({
       activeStep: 0
@@ -166,52 +171,61 @@ class CEvaluationForm extends Component {
               ))}
             </Stepper>
           </Grid>
-          <Grid item xs={12} sm={9}>
+          <Grid item xs={12} sm={9} className="m-t-xs">
             {this.renderStepContent(activeStep)}
-            <Grid container spacing={3} justify="space-between">
-              <Grid item></Grid>
-              <Grid item xs={12}>
-                <Button
-                  disabled={activeStep === 0 || this._vState.saving}
-                  onClick={this.handleBack}
-                  className="m-r-sm"
-                >
-                  Back
-                </Button>
-                {activeStep === steps.length - 1 && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSaveConfiguration}
-                  data-testid="save-config-btn"
-                  data-track-id="save-config-btn"
-                  disabled={this._vState.saving}
-                  className="m-l-sm"
-                >
-                  Save Configuration
-                </Button>
-                )}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={activeStep === steps.length - 1 ? handleCreate : this.handleNext}
-                  data-testid="create-app-btn"
-                  data-track-id="create-app-btn"
-                  disabled={this._vState.saving}
-                >
-                  {activeStep === steps.length - 1 ? 'Save And Run' : 'Next'}
+            <Box component={Paper} elevation={0} p={1} className="sticky-actions border-top" style={{zIndex: 10, opacity: '90%', top: 'calc(100vh - 100px)'}}>
+              <Grid container spacing={1} justify="space-between">
+                <Grid item>
                   {
-                    this._vState.saving &&
-                    <CircularProgress size="15px" className="m-r-xs" />
+                    <Button
+                      data-testid="cancel-button"
+                      color="primary"
+                      onClick={this.handleCancel}
+                    >
+                      CANCEL
+                    </Button>
                   }
-                </Button>
-                {activeStep === steps.length && (
-                  <Button onClick={this.handleReset}>
-                    Reset
+                </Grid>
+                <Grid item>
+                  {activeStep > 0 &&
+                    <Button
+                      disabled={activeStep === 0 || this._vState.saving}
+                      onClick={this.handleBack}
+                      className="m-r-sm"
+                    >
+                      Back
+                    </Button>
+                  }
+                  {activeStep === steps.length - 1 && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSaveConfiguration}
+                      data-testid="save-config-btn"
+                      data-track-id="save-config-btn"
+                      disabled={this._vState.saving}
+                      className="m-l-sm"
+                    >
+                      Save Configuration
+                    </Button>
+                  )}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={activeStep === steps.length - 1 ? handleCreate : this.handleNext}
+                    data-testid="create-app-btn"
+                    data-track-id="create-app-btn"
+                    disabled={this._vState.saving}
+                  >
+                    {activeStep === steps.length - 1 ? 'Save And Run' : 'Continue'}
+                    {
+                      this._vState.saving &&
+                      <CircularProgress size="15px" className="m-r-xs" />
+                    }
                   </Button>
-                )}
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
           </Grid>
         </Grid>
       </Paper>

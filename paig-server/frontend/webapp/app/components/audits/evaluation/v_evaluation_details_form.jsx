@@ -1,11 +1,12 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import {observer} from 'mobx-react';
 
 import Grid from '@material-ui/core/Grid';
 import FormLabel from '@material-ui/core/FormLabel';
-import TextField from '@material-ui/core/TextField';
+import Paper from '@material-ui/core/Paper';
+import { Box } from '@material-ui/core';
+
 import {FormGroupInput} from 'common-ui/components/form_fields';
-import {InputGroupSelect2} from 'common-ui/components/filters';
 import {aiApplicationLookup} from 'components/reports/fields_lookup';
 import CEvaluationAppsList from  'components/audits/evaluation/v_evaluation_list_applications'
 import { Typography } from '@material-ui/core';
@@ -23,9 +24,10 @@ const VEvaluationDetailsForm = observer(({form, _vState}) => {
   }
 
   return (
-    <Fragment>
-    <box>
-      <Typography>Details</Typography>
+    <Box component={Paper} elevation={0} p="15px">
+      <Typography variant="h6" data-testid="header">
+        Details 
+      </Typography>
       <p>Select a connection method to proceed with evaluation. 
         Using a Pre-registered Application allows for a quicker setup with existing configurations,
          while adding a New Connection provides flexibility for custom integrations.</p>
@@ -39,10 +41,11 @@ const VEvaluationDetailsForm = observer(({form, _vState}) => {
           fullWidth
 		    />
       </Grid>
-      Application Configurations
+      <Typography variant="h6" data-testid="header" className='m-b-sm'>
+        Application Configurations
+      </Typography>
       <CEvaluationAppsList form={form}></CEvaluationAppsList>
-    </box>
-    </Fragment>
+    </Box>
   );
 })
 
