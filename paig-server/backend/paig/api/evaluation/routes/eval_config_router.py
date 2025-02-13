@@ -31,10 +31,8 @@ async def save_eval_config(
         user: dict = Depends(get_auth_user),
         eval_config_controller: EvaluationConfigController = eval_config_controller_instance
 ):
-    print('here')
     body_params = body_params.model_dump()
     body_params['owner'] = user['username']
-    print('here2')
     return await eval_config_controller.create_eval_config(body_params=body_params)
 
 

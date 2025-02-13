@@ -52,6 +52,11 @@ class CEvaluationForm extends Component {
     this.props.history.replace('/eval_reports');
   }
 
+  handlePostSave = (response) => {
+    //handle post final form submission
+    this.props.history.replace('/eval_configs');
+  }
+
   handleCreate = async () => {
     const form = this.evalForm;
     const formData = form.toJSON();
@@ -65,7 +70,7 @@ class CEvaluationForm extends Component {
 
     try {
       this._vState.saving = true;
-      let response = await this.props.evaluationStore.saveEvaluationConfig(data);
+      let response = await this.props.evaluationStore.saveAndRunEvaluationConfig(data);
       this._vState.saving = false;
       f.notifySuccess('You evaluation is triggered successfully');
       this.handlePostCreate(response);
@@ -139,8 +144,28 @@ class CEvaluationForm extends Component {
     }
   }
 
-  handleSaveConfiguration = () => {
-    console.log("Save Configuration");
+  handleSaveConfiguration = async () => {
+    const form = this.evalForm;
+    const formData = form.toJSON();
+    const data = {
+      purpose: formData.purpose,
+      name: formData.name,
+      categories: formData.categories,
+      custom_prompts: [],
+      application_ids: formData.application_ids
+    };
+
+    try {
+      this._vState.saving = true;
+      let response = await this.props.evaluationStore.saveEvaluationConfig(data);
+      this._vState.saving = false;
+      f.notifySuccess('You evaluation is saved successfully');
+      this.handlePostSave(response);
+      this._vState.saving = false;
+    } catch(e) {
+      this._vState.saving = false;
+      f.handleError()(e);
+    }
   } 
 
   render() {

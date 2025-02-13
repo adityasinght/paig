@@ -37,6 +37,12 @@ class EvaluationStore extends BaseStore {
     }
 
     saveEvaluationConfig(data, opts = {}) {
+        opts.path = '/config/save';
+        opts.recordMapper = (json) => new MEvaluation(json);
+        return this.create(data, opts);
+    }
+
+    saveAndRunEvaluationConfig(data, opts = {}) {
         opts.path = '/eval/save_and_run';
         opts.recordMapper = (json) => new MEvaluation(json);
         return this.create(data, opts);
@@ -87,7 +93,7 @@ class EvaluationStore extends BaseStore {
     }
     
     deleteReport(id, opts = {}) {
-        opts.path= `/report`;
+        opts.path= `/eval/report`;
         return this.delete(id, opts);
     }
 
@@ -97,7 +103,7 @@ class EvaluationStore extends BaseStore {
     }
 
     reRunReport(id, opts = {}) {
-        opts.path= `/report/${id}/rerun`;
+        opts.path= `/eval/${id}/rerun`;
         opts.recordMapper = (json) => new MEvaluation(json);
         return this.create({}, opts);
     }

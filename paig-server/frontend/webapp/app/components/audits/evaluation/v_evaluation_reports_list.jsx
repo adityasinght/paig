@@ -132,7 +132,7 @@ class VEvaluationReportTable extends Component{
     let rows = [
       <TableCell key="1">{model.eval_id}</TableCell>,
       <TableCell key="2">{model.config_name || "--"}</TableCell>,
-      <TableCell key="3">{this.getApplicationNameCell(model.application_name) || "--"}</TableCell>,
+      <TableCell key="3">{this.getApplicationNameCell(model.application_names) || "--"}</TableCell>,
       //- <TableCell key="4">{model.application_client || "--"}</TableCell>,
       <TableCell key="5">{this.getStatus(model.status) || "--"}</TableCell>,
       <TableCell key="7">{this.getResultCell(model)}</TableCell>,

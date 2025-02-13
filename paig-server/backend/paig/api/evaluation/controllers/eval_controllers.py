@@ -18,6 +18,7 @@ class EvaluationController:
 
     async def create_and_run_evaluation(self, eval_params, user):
         try:
+            eval_params['owner'] = user
             create_config = await self.evaluation_config_service.create_eval_config(eval_params)
             resp = await self.run_evaluation(create_config.id, user)
             return resp
@@ -44,8 +45,8 @@ class EvaluationController:
         return create_pageable_response(eval_results_list, total_count, page, size, sort)
 
 
-    async def rerun_evaluation(self, id, user):
-        return await self.evaluation_service.rerun_evaluation_by_id(id, user['username'])
+    async def rerun_evaluation(self, eval_id, user):
+        return await self.evaluation_service.rerun_evaluation_by_id(eval_id, user['username'])
 
 
     async def delete_evaluation(self, eval_id):
