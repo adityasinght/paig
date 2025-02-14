@@ -11,6 +11,13 @@ class CEvaluationCategoriesForm extends Component {
     };
   }
 
+  componentDidMount() {
+    const { _vState } = this.props;
+    const evalCategories = _vState.purposeResponse;
+    const suggestedCategories = evalCategories.suggested_categories.map((category) => category.Name);
+    this.setState({ selectedCategories: suggestedCategories });
+  }
+
   handleToggle = () => {
     this.setState((prevState) => ({
       showSuggested: !prevState.showSuggested,

@@ -69,7 +69,7 @@ const VEvaluationCategories = observer(({ form, selectedCategories, showSuggeste
       />
       <Paper className={classes.paper} elevation={0}>
         <FormControl component="fieldset" fullWidth>
-          <Typography variant="h6" className="m-b-sm">
+          <Typography variant="h7" className="m-b-sm">
             {showSuggested ? "Suggested Categories" : "All Categories"}
           </Typography>
 

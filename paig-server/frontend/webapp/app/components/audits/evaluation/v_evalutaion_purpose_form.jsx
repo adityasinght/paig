@@ -2,7 +2,6 @@ import React from "react";
 import { observer } from "mobx-react";
 
 import Grid from "@material-ui/core/Grid";
-import FormLabel from "@material-ui/core/FormLabel";
 import Typography from "@material-ui/core/Typography";
 import CallMadeIcon from '@material-ui/icons/CallMade';
 import Card from "@material-ui/core/Card";
@@ -21,10 +20,6 @@ const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
     purpose.value = description;
   };
 
-  const handlePurposeChange = (e) => {
-    purpose.value = e.target.value;
-  };
-
   return (
     <Box component={Paper} elevation={0} p="15px">
       <Typography variant="h6" data-testid="header">
@@ -32,15 +27,17 @@ const VEvaluationPurposeForm = observer(({ _vState, data, form }) => {
       </Typography>
       <p>To ensure accurate assessments, clearly define your evaluation goals by specifying which aspects of model performance are most important, such as accuracy, relevance, safety, or bias. You can select one of the provided templates and modify it, or create a completely new evaluation tailored to your needs.</p>
       <Grid item xs={12}>
-        <FormLabel required>Purpose</FormLabel>
-        <FormGroupInput 
+        <FormGroupInput
+          label={"Purpose"}
+          required={true}
           as="textarea" 
-          value={purpose.value}
-          onChange={handlePurposeChange}
+          fieldObj={purpose}
           data-testid="purpose"
         />
       </Grid>
-        Example Purpose:As a finance team member, consider a comprehensive evaluation of the financial model to assess its accuracy, identify potential biases, and ensure compliance with relevant regulations.
+      <Grid item xs={12}>
+        Example Purpose: As a finance team member, consider a comprehensive evaluation of the financial model to assess its accuracy, identify potential biases, and ensure compliance with relevant regulations.
+      </Grid>
       <Typography className="m-t-lg m-b-lg" >Templates</Typography>
       <Grid container spacing={2}>
         {f.models(data).map((template, index) => (

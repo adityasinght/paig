@@ -85,17 +85,23 @@ class CEvaluationForm extends Component {
     return ['Details', 'Purpose', 'Categories'];
   }
 
+  scrollIntoView = () => {
+    this.containerRef?.scrollIntoView({behavior: 'smooth', top: 0});
+  }
+
   handleNext = async () => {
     const { activeStep } = this.state;
     const form = this.evalForm;
     if (activeStep === 0) {
-      if (!form.fields.name.value) {
-        f.notifyError("Please fill in the required fields.");
+      const nameField = form.fields.name;
+      await nameField.validate(true);
+      if (!nameField.valid) {
         return;
       }
     } else if (activeStep == 1) {
-      if (!form.fields.purpose.value) {
-        f.notifyError("Please fill in the required fields.");
+      const purposeField = form.fields.purpose;
+      await purposeField.validate(true);
+      if (!purposeField.valid) {
         return;
       }
       const data = { purpose: form.fields.purpose.value };
@@ -116,6 +122,7 @@ class CEvaluationForm extends Component {
   }
 
   handleBack = () => {
+    this.scrollIntoView();
     this.setState((prevState) => ({
       activeStep: prevState.activeStep - 1
     }));
@@ -176,14 +183,6 @@ class CEvaluationForm extends Component {
 		<BaseContainer
       showRefresh={false}
       showBackButton={true}
-      backButtonProps={{
-      size: 'small',
-      onClick: handleBackButton
-      }}
-      titleColAttr={{
-        sm: 8,
-        md: 8
-      }}
 		>
       <Paper>
         <Grid container spacing={1} ref={ref => this.containerRef = ref}>
