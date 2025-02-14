@@ -19,15 +19,17 @@ class EvaluationController:
     async def create_and_run_evaluation(self, eval_params, user):
         try:
             eval_params['owner'] = user
+            report_name = eval_params['report_name']
+            del eval_params['report_name']
             create_config = await self.evaluation_config_service.create_eval_config(eval_params)
-            resp = await self.run_evaluation(create_config.id, user)
+            resp = await self.run_evaluation(create_config.id, user, report_name)
             return resp
         except Exception as e:
             return {"error": str(e)}
 
-    async def run_evaluation(self, eval_config_id, user):
+    async def run_evaluation(self, eval_config_id, user, report_name):
         try:
-            resp = await self.evaluation_service.run_evaluation(eval_config_id, user)
+            resp = await self.evaluation_service.run_evaluation(eval_config_id, user, base_run_id=None, report_name=report_name)
             return resp
         except Exception as e:
             print(traceback.print_exc())
@@ -45,8 +47,8 @@ class EvaluationController:
         return create_pageable_response(eval_results_list, total_count, page, size, sort)
 
 
-    async def rerun_evaluation(self, eval_id, user):
-        return await self.evaluation_service.rerun_evaluation_by_id(eval_id, user['username'])
+    async def rerun_evaluation(self, eval_id, user, report_name):
+        return await self.evaluation_service.rerun_evaluation_by_id(eval_id, user['username'], report_name)
 
 
     async def delete_evaluation(self, eval_id):

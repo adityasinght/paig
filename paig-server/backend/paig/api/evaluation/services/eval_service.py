@@ -146,7 +146,7 @@ class EvaluationService:
         return final_target, app_names
 
     @Transactional(propagation=Propagation.REQUIRED)
-    async def run_evaluation(self, eval_config_id, owner, base_run_id=None):
+    async def run_evaluation(self, eval_config_id, owner, base_run_id=None, report_name=None):
         eval_config = await self.eval_config_history_repository.get_eval_config_by_config_id(eval_config_id)
         if eval_config is None:
             raise BadRequestException('Invalid evaluation config ID')
@@ -165,7 +165,8 @@ class EvaluationService:
             "purpose": eval_config.purpose,
             "config_name": eval_config.name,
             "application_names": ','.join(application_names),
-            "base_run_id": base_run_id
+            "base_run_id": base_run_id,
+            "name": report_name
         }
         eval_model= await self.evaluation_repository.create_new_evaluation(eval_params)
         asyncio.create_task(
@@ -209,11 +210,11 @@ class EvaluationService:
         resp['all_categories'] = all_categories['result']
         return resp
 
-    async def rerun_evaluation_by_id(self, eval_id, owner):
+    async def rerun_evaluation_by_id(self, eval_id, owner, report_name):
         existing_evaluation = await self.evaluation_repository.get_evaluations_by_field('id', eval_id)
         if existing_evaluation is None:
             raise BadRequestException('Invalid evaluation ID')
         base_run_id = existing_evaluation.eval_id
         if existing_evaluation.base_run_id:
             base_run_id = existing_evaluation.base_run_id
-        return await self.run_evaluation(existing_evaluation.config_id, owner, base_run_id=base_run_id)
+        return await self.run_evaluation(existing_evaluation.config_id, owner, base_run_id=base_run_id, report_name=report_name)

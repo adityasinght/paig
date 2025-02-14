@@ -4,14 +4,21 @@ from typing import Literal, List, Optional
 from core.factory.database_initiator import BaseAPIFilter
 from fastapi import Query
 from datetime import datetime
-
+from api.evaluation.api_schemas.eval_config_schema import ConfigCreateRequest
 
 REPORT_URL = os.environ.get('REPORT_SERVER_BASE_URL', 'http://localhost:15500')
 
 class GetCategories(BaseModel):
     purpose: str = Field(..., max_length=1024)
 
+class SaveAndRunRequest(ConfigCreateRequest):
+    report_name: str = Field(..., max_length=1024)
+
+class RunRequest(BaseModel):
+    report_name: str = Field(..., max_length=1024)
+
 class BaseEvaluationView(BaseModel):
+    name: str = Field(..., max_length=1024)
     application_names: str = Field(..., max_length=1024)
     config_name: str = Field(..., max_length=1024)
     purpose: str = Field(..., max_length=1024)
