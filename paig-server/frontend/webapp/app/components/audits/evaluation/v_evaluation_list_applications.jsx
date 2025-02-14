@@ -140,7 +140,14 @@ class CEvaluationAppsList extends Component {
     handleEdit = async (model) => {
         this.form.clearForm();
         if (!model?.target_id) {
-            this.form.model = model;
+            this.form.refresh({
+                id: model.id || "",
+                application_id: model.application_id || "",
+                desc: model.desc || "",
+                name: model.name || "",
+                target_id: model.target_id || "",
+                url: model.url || ""
+            });
             this.showEditModal();
             return;
         }

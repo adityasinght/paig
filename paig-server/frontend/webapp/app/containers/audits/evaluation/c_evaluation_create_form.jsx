@@ -26,8 +26,6 @@ class CEvaluationForm extends Component {
     application: '',
     saving: false,
     purposeResponse: null,
-    categoriesResponse: null,
-    categories: [],
     static_prompts: [{"prompt": "", "criteria": ""}]
   }
 	constructor(props) {
@@ -38,14 +36,6 @@ class CEvaluationForm extends Component {
       activeStep: 0
     };
 	}
-
-  handleRedirect = () => {
-    this.props.history.push('/eval_configs');
-  }
-
-  handleBackButton = () => {
-    this.handleRedirect();
-  }
 
   handlePostCreate = (response) => {
     //handle post final form submission
@@ -72,7 +62,7 @@ class CEvaluationForm extends Component {
       this._vState.saving = true;
       let response = await this.props.evaluationStore.saveAndRunEvaluationConfig(data);
       this._vState.saving = false;
-      f.notifySuccess('You evaluation is triggered successfully');
+      f.notifySuccess('Your evaluation is triggered successfully');
       this.handlePostCreate(response);
       this._vState.saving = false;
     } catch(e) {
@@ -166,7 +156,7 @@ class CEvaluationForm extends Component {
       this._vState.saving = true;
       let response = await this.props.evaluationStore.saveEvaluationConfig(data);
       this._vState.saving = false;
-      f.notifySuccess('You evaluation is saved successfully');
+      f.notifySuccess('Your evaluation is saved successfully');
       this.handlePostSave(response);
       this._vState.saving = false;
     } catch(e) {
@@ -176,7 +166,7 @@ class CEvaluationForm extends Component {
   } 
 
   render() {
-    const {handleBackButton, handleCreate, handleSaveConfiguration} = this;
+    const { handleCreate, handleSaveConfiguration } = this;
     const { activeStep } = this.state;
     const steps = this.getSteps();
 	return (

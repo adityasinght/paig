@@ -10,10 +10,13 @@ import {
   FormControl,
   Typography,
   Tooltip,
-  Box
+  Box,
+  Grid
 } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 import Alert from '@material-ui/lab/Alert';
+
+import {ErrorLogo} from 'components/site/v_error_page_component';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -31,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
   categoryName: {
     color: theme.palette.text.primary,
-  },
+  }
 }));
 
 const VEvaluationCategories = observer(({ form, selectedCategories, showSuggested, handleToggle, filteredCategories, setSelectedCategories }) => {
@@ -68,33 +71,47 @@ const VEvaluationCategories = observer(({ form, selectedCategories, showSuggeste
         className="m-t-md m-b-md"
       />
       <Paper className={classes.paper} elevation={0}>
-        <FormControl component="fieldset" fullWidth>
-          <Typography variant="h7" className="m-b-sm">
-            {showSuggested ? "Suggested Categories" : "All Categories"}
-          </Typography>
+        {filteredCategories.length === 0 ? (   
+          <Grid container spacing={2} className="align-items-center m-t-md m-b-md justify-center">
+            <Grid item>
+              <ErrorLogo errorCode="" imageProps={{width: 'auto', height: '100px'}} />
+            </Grid>
+            <Grid item xs={12} sm={7}>
+              <Typography variant="h6" data-testid="no-ai-app-connected">No Categories Created</Typography>
+              <Typography variant="body2" data-testid="no-ai-app-desc">
+              The purpose you entered couldn't be used to generate categories. Try refining it with more context or choosing a broader description.
+              </Typography>
+            </Grid>
+          </Grid>      
+        ) : (
+          <FormControl component="fieldset" fullWidth>
+            <Typography variant="h7" className="m-b-sm">
+              {showSuggested ? "Suggested Categories" : "All Categories"}
+            </Typography>
 
-          <FormGroup className={classes.checkboxGrid}>
-            {filteredCategories.map((category) => (
-              <FormControlLabel
-                key={category.Name}
-                control={
-                  <Checkbox
-                    color="primary"
-                    checked={selectedCategories.includes(category.Name)}
-                    onChange={() => handleCheckboxChange(category.Name)}
-                  />
-                }
-                label={
-                  <Tooltip key={category.Name} title={category.Description} arrow placement="top">  
-                    <Typography variant="body1" className={classes.categoryName}>
-                      {category.Name}
-                    </Typography>
-                  </Tooltip>
-                }
-              />
-            ))}
-          </FormGroup>
-        </FormControl>  
+            <FormGroup className={classes.checkboxGrid}>
+              {filteredCategories.map((category) => (
+                <FormControlLabel
+                  key={category.Name}
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={selectedCategories.includes(category.Name)}
+                      onChange={() => handleCheckboxChange(category.Name)}
+                    />
+                  }
+                  label={
+                    <Tooltip key={category.Name} title={category.Description} arrow placement="top">  
+                      <Typography variant="body1" className={classes.categoryName}>
+                        {category.Name}
+                      </Typography>
+                    </Tooltip>
+                  }
+                />
+              ))}
+            </FormGroup>
+          </FormControl>  
+        )}
       </Paper>
     </Box>
   );

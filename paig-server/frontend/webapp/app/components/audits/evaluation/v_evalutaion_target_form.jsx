@@ -16,6 +16,7 @@ const VEvalTargetForm = ({form}) => {
 
     const {
         id,
+        application_id,
         name,
         connectionType,
         url,
@@ -66,7 +67,7 @@ const VEvalTargetForm = ({form}) => {
         <FormHorizontal>
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={6}>
-                    {id?.value ? (
+                    {application_id.value? (
                         <Grid item xs={12}>
                             <FormLabel>Name</FormLabel>
                             <Typography variant="body1" data-testid="name-text">
@@ -76,7 +77,7 @@ const VEvalTargetForm = ({form}) => {
                     ) : (
                         <FormGroupInput
                             required={true}
-                            label={"Name (Auto Generated, Editable)"}
+                            label={id ? "Name" : "Name (Auto Generated, Editable)"}
                             placeholder="Enter name of the topic"
                             fieldObj={name}
                             inputProps={{ 'data-testid': 'name-input' }}

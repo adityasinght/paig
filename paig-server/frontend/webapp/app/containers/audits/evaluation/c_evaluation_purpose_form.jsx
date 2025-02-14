@@ -44,67 +44,7 @@ class CEvaluationPurposeForm extends Component {
     this.props.evaluationStore.fetchEvaluationReports({
       params: this.cEvalTemplateList.params
     }).then(res => {
-      const mockRes = {
-        models: [
-          {
-            application_names: "Finance App",
-            config_name: "Finance Config",
-            purpose: "Evaluate the financial model for accuracy and compliance.",
-            eval_id: "eval_001",
-            config_id: 101,
-            status: "Completed",
-            owner: "user_123",
-            passed: "10",
-            failed: "2",
-            id: 1,
-            report_id: "report_001",
-            create_time: "2023-10-01T10:00:00Z"
-          },
-          {
-            application_names: "Risk Management App",
-            config_name: "Risk Config",
-            purpose: "Assess the risk management model for potential risks and mitigation strategies.",
-            eval_id: "eval_002",
-            config_id: 102,
-            status: "In Progress",
-            owner: "user_456",
-            passed: "5",
-            failed: "1",
-            id: 2,
-            report_id: "report_002",
-            create_time: "2023-10-02T11:00:00Z"
-          },
-          {
-            application_names: "Compliance App",
-            config_name: "Compliance Config",
-            purpose: "Ensure the financial model adheres to all relevant regulations and standards.",
-            eval_id: "eval_003",
-            config_id: 103,
-            status: "Pending",
-            owner: "user_789",
-            passed: "8",
-            failed: "3",
-            id: 3,
-            report_id: "report_003",
-            create_time: "2025-02-10T12:00:00Z"
-          },
-          {
-            application_names: "Performance Analysis App",
-            config_name: "Performance Config",
-            purpose: "Evaluate the financial model performance metrics and identify trends.",
-            eval_id: "eval_004",
-            config_id: 104,
-            status: "Completed",
-            owner: "user_101",
-            passed: "12",
-            failed: "4",
-            id: 4,
-            report_id: "report_004",
-            create_time: "2025-02-01T13:00:00Z"
-          }
-        ]
-      };
-      const apiTemplates = mockRes.models.map(model => ({
+      const apiTemplates = res.models.map(model => ({
         title: `Custom - Last Used ${this.formatCreateTime(model.create_time)}`,
         chip: "",
         description: model.purpose
@@ -113,7 +53,7 @@ class CEvaluationPurposeForm extends Component {
 
       this.cEvalTemplateList.models = combinedTemplates;
 
-      f.resetCollection(this.cEvalTemplateList, combinedTemplates, mockRes.pageState);
+      f.resetCollection(this.cEvalTemplateList, combinedTemplates, res.pageState);
       console.log(this.cEvalTemplateList.models, 'this.cEvalTemplateList.models');
     }, f.handleError(this.cEvalTemplateList));
   }
