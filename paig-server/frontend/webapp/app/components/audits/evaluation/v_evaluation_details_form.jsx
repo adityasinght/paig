@@ -7,21 +7,11 @@ import Paper from '@material-ui/core/Paper';
 import { Box } from '@material-ui/core';
 
 import {FormGroupInput} from 'common-ui/components/form_fields';
-import {aiApplicationLookup} from 'components/reports/fields_lookup';
 import CEvaluationAppsList from  'components/audits/evaluation/v_evaluation_list_applications'
 import { Typography } from '@material-ui/core';
 
-const VEvaluationDetailsForm = observer(({form, _vState}) => {
-  const { name, application_name } = form.fields;
-  const handleApplicationChange = (value) => {
-    _vState.application = value;
-    form.fields.application_name.value = value;
-  };
-
-  const targets = (searchString, callback) => {
-    let target =  aiApplicationLookup(searchString, callback, 'application');
-    return target
-  }
+const VEvaluationDetailsForm = observer(({form}) => {
+  const { name } = form.fields;
 
   return (
     <Box component={Paper} elevation={0} p="15px">
@@ -63,7 +53,13 @@ const evaluation_form_def = {
       fn: (field) => (field.value || '').trim().length > 0
     }
   },
-  categories: {}
+  categories: {},
+  report_name: {
+    validators: {
+      errorMessage: 'Report Name is required!',
+      fn: (field) => (field.value || '').trim().length > 0
+    }
+  }
 }
 
 export default VEvaluationDetailsForm;

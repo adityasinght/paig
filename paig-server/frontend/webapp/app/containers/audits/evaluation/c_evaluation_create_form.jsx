@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, createRef} from 'react';
 import {observable} from 'mobx';
 import {inject, observer} from "mobx-react";
 
@@ -13,15 +13,18 @@ import StepConnector from '@material-ui/core/StepConnector';
 import Box from '@material-ui/core/Box';
 
 import f from "common-ui/utils/f";
+import FSModal from 'common-ui/lib/fs_modal';
 import BaseContainer from 'containers/base_container';
 import {createFSForm} from 'common-ui/lib/form/fs_form';
 import VEvaluationDetailsForm, {evaluation_form_def} from 'components/audits/evaluation/v_evaluation_details_form';
+import VRunReportForm from 'components/audits/evaluation/v_run_report_form';
 import CEvaluationPurposeForm from "containers/audits/evaluation/c_evaluation_purpose_form";
 import CEvaluationCategoriesForm from "containers/audits/evaluation/c_evaluation_categories_form";
 
 @inject("evaluationStore")
 @observer
 class CEvaluationForm extends Component {
+  runReportModalRef = createRef();
   @observable _vState = {
     application: '',
     saving: false,
@@ -55,13 +58,15 @@ class CEvaluationForm extends Component {
       name: formData.name,
       categories: formData.categories,
       custom_prompts: [],
-      application_ids: formData.application_ids
+      application_ids: formData.application_ids,
+      report_name: formData.report_name
     };
 
     try {
       this._vState.saving = true;
       let response = await this.props.evaluationStore.saveAndRunEvaluationConfig(data);
       this._vState.saving = false;
+      this.runReportModalRef.current.hide();
       f.notifySuccess('Your evaluation is triggered successfully');
       this.handlePostCreate(response);
       this._vState.saving = false;
@@ -165,6 +170,16 @@ class CEvaluationForm extends Component {
     }
   } 
 
+  openRunReportModal = async () => {
+    if (this.runReportModalRef.current) {
+      this.runReportModalRef.current.show({
+        title: 'Run Report',
+        btnOkText: 'Run',
+        btnCancelText: 'Cancel'
+      })
+    }
+  };
+
   render() {
     const { handleCreate, handleSaveConfiguration } = this;
     const { activeStep } = this.state;
@@ -226,7 +241,7 @@ class CEvaluationForm extends Component {
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={activeStep === steps.length - 1 ? handleCreate : this.handleNext}
+                    onClick={activeStep === steps.length - 1 ? this.openRunReportModal : this.handleNext}
                     data-testid="create-app-btn"
                     data-track-id="create-app-btn"
                     disabled={this._vState.saving}
@@ -234,7 +249,7 @@ class CEvaluationForm extends Component {
                     {activeStep === steps.length - 1 ? 'Save And Run' : 'Continue'}
                     {
                       this._vState.saving &&
-                      <CircularProgress size="15px" className="m-r-xs" />
+                      <CircularProgress size="15px" className="m-l-xs" />
                     }
                   </Button>
                 </Grid>
@@ -243,6 +258,9 @@ class CEvaluationForm extends Component {
           </Grid>
         </Grid>
       </Paper>
+      <FSModal ref={this.runReportModalRef} dataResolve={this.handleCreate}>
+        <VRunReportForm form={this.evalForm} />
+      </FSModal>
 	  </BaseContainer>
 	)}
 }
