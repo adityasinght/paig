@@ -75,11 +75,11 @@ class EvaluationTargetService:
                 app = dict()
                 app['id'] = index
                 index += 1
-                app['application_id'] = ai_app[0]
+                app['ai_application_id'] = ai_app[0]
                 app['target_id'] = ai_app[1]
                 app['desc'] = ai_app[3]
                 app['url'] = ai_app[4]
-                if app['application_id'] is not None:
+                if app['ai_application_id'] is not None:
                     app['name'] = ai_app[2]
                 else:
                     app['name'] = ai_app[5]
@@ -159,6 +159,7 @@ class EvaluationTargetService:
             resp['name'] = target_model.name
             resp['url'] = target_model.url
             resp['id'] = target_model.id
+            resp['target_id'] = target_model.id
             resp['ai_application_id'] = target_model.application_id
             return resp
         except Exception as e:

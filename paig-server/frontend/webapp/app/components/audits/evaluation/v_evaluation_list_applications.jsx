@@ -212,13 +212,10 @@ class CEvaluationAppsList extends Component {
                 return acc;
             }, {});
         }
-        if (!data.id) {
-            data.ai_application_id = null
-        }
 
         this.modalRef.current.okBtnDisabled(true);
     
-        if (data.id) {
+        if (data.target_id) {
           try {
             await this.props.evaluationStore.updateConfig(data);
             this.modalRef.current.hide();

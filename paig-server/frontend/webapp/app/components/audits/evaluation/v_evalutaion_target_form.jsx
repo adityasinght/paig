@@ -95,7 +95,7 @@ const VEvalTargetForm = ({form}) => {
                         <FormGroupInput
                             required={true}
                             label={id ? "Name" : "Name (Auto Generated, Editable)"}
-                            placeholder="Enter configuration"
+                            placeholder="Enter configuration name"
                             fieldObj={name}
                             inputProps={{ 'data-testid': 'name-input' }}
                         />
@@ -110,6 +110,7 @@ const VEvalTargetForm = ({form}) => {
                         placeholder="HTTP/HTTPS-Endpoint"
                         fieldObj={connectionType}
                         inputProps={{'data-testid': 'connection-type'}}
+                        disabled={true}
                     />
                 </Grid>
                 <Grid item xs={12}>
