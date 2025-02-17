@@ -40,6 +40,7 @@ const VEvaluationDetailsForm = observer(({form}) => {
 })
 
 const evaluation_form_def = {
+  id: {},
   name: {
     validators: {
       errorMessage: 'Evaluation Name is required!',

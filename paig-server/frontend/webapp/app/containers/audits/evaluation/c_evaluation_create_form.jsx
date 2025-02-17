@@ -1,25 +1,25 @@
 import React, {Component, createRef} from 'react';
-import {observable} from 'mobx';
 import {inject, observer} from "mobx-react";
+import {observable} from 'mobx';
 
+import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
+import Step from '@material-ui/core/Step';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
 import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
-import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
 import StepConnector from '@material-ui/core/StepConnector';
-import Box from '@material-ui/core/Box';
+import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
 
 import f from "common-ui/utils/f";
 import FSModal from 'common-ui/lib/fs_modal';
 import BaseContainer from 'containers/base_container';
 import {createFSForm} from 'common-ui/lib/form/fs_form';
-import VEvaluationDetailsForm, {evaluation_form_def} from 'components/audits/evaluation/v_evaluation_details_form';
 import VRunReportForm from 'components/audits/evaluation/v_run_report_form';
 import CEvaluationPurposeForm from "containers/audits/evaluation/c_evaluation_purpose_form";
 import CEvaluationCategoriesForm from "containers/audits/evaluation/c_evaluation_categories_form";
+import VEvaluationDetailsForm, {evaluation_form_def} from 'components/audits/evaluation/v_evaluation_details_form';
 
 @inject("evaluationStore")
 @observer
@@ -40,13 +40,11 @@ class CEvaluationForm extends Component {
     };
 	}
 
-  handlePostCreate = (response) => {
-    //handle post final form submission
+  handlePostCreate = () => {
     this.props.history.replace('/eval_reports');
   }
 
-  handlePostSave = (response) => {
-    //handle post final form submission
+  handlePostSave = () => {
     this.props.history.replace('/eval_configs');
   }
 
@@ -181,7 +179,7 @@ class CEvaluationForm extends Component {
   };
 
   render() {
-    const { handleCreate, handleSaveConfiguration } = this;
+    const { handleSaveConfiguration } = this;
     const { activeStep } = this.state;
     const steps = this.getSteps();
 	return (
@@ -193,7 +191,7 @@ class CEvaluationForm extends Component {
         <Grid container spacing={1} ref={ref => this.containerRef = ref}>
           <Grid item xs={12} sm={3} className='border-right'>
             <Stepper activeStep={activeStep} orientation="vertical" connector={<StepConnector style={{padding: 0}} />} >
-              {steps.map((label, index) => (
+              {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
               </Step>
@@ -220,7 +218,7 @@ class CEvaluationForm extends Component {
                     <Button
                       disabled={activeStep === 0 || this._vState.saving}
                       onClick={this.handleBack}
-                      className="m-r-md"
+                      className="m-r-sm"
                     >
                       Back
                     </Button>

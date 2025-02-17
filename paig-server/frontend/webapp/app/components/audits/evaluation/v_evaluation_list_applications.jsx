@@ -3,14 +3,15 @@ import {inject, observer} from 'mobx-react';
 import {action} from 'mobx';
 
 import {Grid} from '@material-ui/core';
-import UiState from 'data/ui_state';
+
 import f from 'common-ui/utils/f';
+import UiState from 'data/ui_state';
+import FSModal from 'common-ui/lib/fs_modal';
+import {createFSForm} from 'common-ui/lib/form/fs_form';
 import {AddButton} from 'common-ui/components/action_buttons';
 import {IncludeExcludeComponent} from 'common-ui/components/v_search_component';
 import VEvaluationAppsTable from 'components/audits/evaluation/v_evaluation_table_applications';
-import FSModal from 'common-ui/lib/fs_modal';
 import {VEvalTargetForm, eval_target_form_def} from "components/audits/evaluation/v_evalutaion_target_form";
-import { createFSForm } from 'common-ui/lib/form/fs_form';
 
 
 const CATEGORIES = {
@@ -142,15 +143,23 @@ class CEvaluationAppsList extends Component {
         if (!model?.target_id) {
             this.form.refresh({
                 id: model.id || "",
-                application_id: model.application_id || "",
+                ai_application_id: model.ai_application_id || "",
                 desc: model.desc || "",
                 name: model.name || "",
-                target_id: model.target_id || "",
-                url: model.url || ""
+                url: model.url || "",
             });
             this.showEditModal();
             return;
         }
+        this.form.refresh({
+            id: model.id || "",
+            ai_application_id: model.ai_application_id || "",
+            desc: model.desc || "",
+            name: model.name || "",
+            url: model.url || "",
+            target_id: model.target_id || ""
+        });
+        this.showEditModal();
         
         try {
             const response = await this.props.evaluationStore.fetchTargetConfig(model);

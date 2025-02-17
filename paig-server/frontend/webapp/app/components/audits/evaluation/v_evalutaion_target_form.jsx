@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
-import { Grid, Typography, IconButton, Button } from '@material-ui/core';
-import { Delete, Add } from '@material-ui/icons';
+import {Delete, Add} from '@material-ui/icons';
 import FormLabel from '@material-ui/core/FormLabel';
+import {Grid, Typography, IconButton, Button} from '@material-ui/core';
 
-import { FormHorizontal, FormGroupInput, FormGroupSelect2 } from 'common-ui/components/form_fields';
+import {FormHorizontal, FormGroupInput, FormGroupSelect2} from 'common-ui/components/form_fields';
 
 const SUPPORTED_METHODS = [
     { name: 'POST', value: 'POST' },
@@ -16,7 +16,7 @@ const VEvalTargetForm = ({form}) => {
 
     const {
         id,
-        application_id,
+        ai_application_id,
         name,
         connectionType,
         url,
@@ -63,11 +63,28 @@ const VEvalTargetForm = ({form}) => {
         form.fields.method.value = method;
     };
 
+    useEffect(() => {
+        const generateReportName = () => {
+            if (!id.value) {
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
+                const formattedTime = now.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                }).replace(' ', ''); // Format: HH:MM(am/pm)
+                return `eval-target-${formattedDate}${formattedTime}`;
+            }
+            return '';
+        };
+    
+        name.value = generateReportName();
+      }, [id.value, name]);
+
     return (
         <FormHorizontal>
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={6}>
-                    {application_id.value? (
+                    {ai_application_id.value? (
                         <Grid item xs={12}>
                             <FormLabel>Name</FormLabel>
                             <Typography variant="body1" data-testid="name-text">
@@ -78,7 +95,7 @@ const VEvalTargetForm = ({form}) => {
                         <FormGroupInput
                             required={true}
                             label={id ? "Name" : "Name (Auto Generated, Editable)"}
-                            placeholder="Enter name of the topic"
+                            placeholder="Enter configuration"
                             fieldObj={name}
                             inputProps={{ 'data-testid': 'name-input' }}
                         />
@@ -89,7 +106,6 @@ const VEvalTargetForm = ({form}) => {
                 </Grid>
                 <Grid item xs={12} sm={4}>
                     <FormGroupInput
-                        required={true}
                         label="Connection type"
                         placeholder="HTTP/HTTPS-Endpoint"
                         fieldObj={connectionType}
@@ -196,7 +212,6 @@ const VEvalTargetForm = ({form}) => {
 
 const eval_target_form_def = {
     id: {},
-    application_id: {},
     ai_application_id: {},
     target_id: {},
     desc: {},
