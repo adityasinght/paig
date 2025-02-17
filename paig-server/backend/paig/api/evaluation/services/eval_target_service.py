@@ -57,15 +57,18 @@ class EvaluationTargetService:
 
 
     async def get_all_ai_app_with_host(self, include_filters, exclude_filters, page_number, size, sort):
+        if include_filters.name:
+            include_filters.name = include_filters.name.strip("*")
+        if exclude_filters.name:
+            exclude_filters.name = exclude_filters.name.strip("*")
+        ai_apps, total_count = await self.eval_target_repository.get_application_list_with_filters(include_filters,
+                                                                                                   exclude_filters,
+                                                                                                   page_number, size,
+                                                                                                   sort, min_value=None,
+                                                                                                   max_value=None)
+        if ai_apps is None:
+            raise NotFoundException("No applications found")
         try:
-            if include_filters.name:
-                include_filters.name = include_filters.name.strip("*")
-            if exclude_filters.name:
-                exclude_filters.name = exclude_filters.name.strip("*")
-            ai_apps, total_count = await self.eval_target_repository.get_application_list_with_filters(include_filters, exclude_filters, page_number, size, sort, min_value=None,
-                                             max_value=None)
-            if ai_apps is None:
-                raise NotFoundException("No applications found")
             index = 1
             final_apps = list()
             for ai_app in ai_apps:
@@ -135,10 +138,10 @@ class EvaluationTargetService:
             raise InternalServerError("Internal server error")
 
     async def delete_target(self, app_id):
+        target_model = await self.eval_target_repository.get_target_by_id(app_id)
+        if target_model is None:
+            raise NotFoundException(f"No application found with id {app_id}")
         try:
-            target_model = await self.eval_target_repository.get_target_by_id(app_id)
-            if target_model is None:
-                raise NotFoundException(f"No application found with id {app_id}")
             eval_target = await self.eval_target_repository.delete_target(target_model)
             return eval_target
         except Exception as e:
@@ -147,10 +150,10 @@ class EvaluationTargetService:
             raise InternalServerError("Internal server error")
 
     async def get_app_target_by_id(self, app_id):
+        target_model = await self.eval_target_repository.get_target_by_id(app_id)
+        if target_model is None:
+            raise NotFoundException(f"No application found with id {app_id}")
         try:
-            target_model = await self.eval_target_repository.get_target_by_id(app_id)
-            if target_model is None:
-                raise NotFoundException(f"No application found with id {app_id}")
             resp = dict()
             resp['config'] = transform_eval_target_to_dict(target_model.config)
             resp['name'] = target_model.name

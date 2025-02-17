@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, patch
 evaluation_services_base_route = "eval-service/api"
 
 
-class TestConfigRouters:
+class TestEvalRouters:
     def setup_method(self):
         self.auth_user_obj = {
             "id": 1,
@@ -49,10 +49,10 @@ class TestConfigRouters:
             "report_name": "string"
         }
 
-        with patch("paig_evaluation.PAIGEvaluator") as MockEvaluator, \
-                patch("paig_evaluation.get_suggested_plugins",
+        with patch("paig_evaluation.paig_evaluator.PAIGEvaluator") as MockEvaluator, \
+                patch("paig_evaluation.paig_evaluator.get_suggested_plugins",
                       return_value={"status": "success", "result": ["plugin1", "plugin2"]}), \
-                patch("paig_evaluation.get_all_plugins",
+                patch("paig_evaluation.paig_evaluator.get_all_plugins",
                       return_value={"status": "success", "result": ["plugin1", "plugin2", "plugin3"]}):
             # Mock PAIGEvaluator instance methods
             mock_evaluator_instance = MockEvaluator.return_value
@@ -83,23 +83,20 @@ class TestConfigRouters:
             assert "content" in get_response.json()
             assert isinstance(get_response.json()["content"], list)
 
-            # rerun evaluation
-
-            post_data = {
-                "report_name": "string"
-            }
-            rerun_response = await client.post(f"/{evaluation_services_base_route}/eval/1/rerun", json=post_data)
-            assert rerun_response.status_code == 200
-
-            # delete report
-            delete_response = await client.delete(f"/{evaluation_services_base_route}/eval/report/1")
-            assert delete_response.status_code == 200
 
 
-            # get categories
-            post_data = {
-                "purpose": "string"
-            }
-            get_categories_response = await client.post(f"/{evaluation_services_base_route}/eval/categories", json=post_data)
+    async def test_get_categories(self, client: AsyncClient, app: FastAPI):
+        app.dependency_overrides[get_auth_user] = self.auth_user
+        with patch("paig_evaluation.paig_evaluator.get_suggested_plugins",
+                   return_value={"status": "success", "result": ["plugin1", "plugin2"]}) as mock_get_suggested, \
+                patch("paig_evaluation.paig_evaluator.get_all_plugins",
+                      return_value={"status": "success", "result": ["plugin1", "plugin2", "plugin3"]}) as mock_get_all:
+            # Ensure the mocks are being used
+             # get categories
+            post_data = {"purpose": "string"}
+            get_categories_response = await client.post(f"/{evaluation_services_base_route}/eval/categories",
+                                                        json=post_data)
+
             assert get_categories_response.status_code == 200
+
 

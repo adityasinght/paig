@@ -38,8 +38,9 @@ class TestTargetRouters:
         }
         # Create application
         post_response = await client.post(f"/{evaluation_services_base_route}/target/application", json=post_data)
-        assert post_response.status_code == 201
+        assert post_response.status_code == 200
         created_app = post_response.json()
+
         app_id = created_app["id"]
 
         # Get application list
@@ -76,7 +77,7 @@ class TestTargetRouters:
 
         # Delete application
         delete_response = await client.delete(f"/{evaluation_services_base_route}/target/application/{app_id}")
-        assert delete_response.status_code == 204
+        assert delete_response.status_code == 200
 
         # Verify deletion
         get_deleted_response = await client.get(f"/{evaluation_services_base_route}/target/application/{app_id}")

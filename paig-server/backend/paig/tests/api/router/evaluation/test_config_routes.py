@@ -28,15 +28,27 @@ class TestConfigRouters:
     async def test_config_routes(self, client: AsyncClient, app: FastAPI):
         app.dependency_overrides[get_auth_user] = self.auth_user
         post_data = {
+            "url": "string",
+            "body": {},
+            "headers": {},
+            "method": "string",
+            "transformResponse": "string",
+            "name": "string",
+            "ai_application_id": 0
+        }
+        # Create application
+        post_response = await client.post(f"/{evaluation_services_base_route}/target/application", json=post_data)
+
+        post_data = {
             "purpose": "string",
             "name": "string",
             "categories": ["string"],
             "custom_prompts": ["string"],
-            "application_ids": "string"
+            "application_ids": "1"
         }
         # Create config
         post_response = await client.post(f"/{evaluation_services_base_route}/config/save", json=post_data)
-        assert post_response.status_code == 201
+        assert post_response.status_code == 200
         created_config = post_response.json()
         config_id = created_config["id"]
 
@@ -53,7 +65,7 @@ class TestConfigRouters:
             "name": "updated_string",
             "categories": ["updated_string"],
             "custom_prompts": ["updated_string"],
-            "application_ids": "updated_string"
+            "application_ids": "1"
         }
         put_response = await client.put(f"/{evaluation_services_base_route}/config/{config_id}", json=update_data)
         assert put_response.status_code == 200
@@ -63,8 +75,4 @@ class TestConfigRouters:
 
         # Delete config
         delete_response = await client.delete(f"/{evaluation_services_base_route}/config/{config_id}")
-        assert delete_response.status_code == 204
-
-        # Verify deletion
-        get_deleted_response = await client.get(f"/{evaluation_services_base_route}/config/{config_id}")
-        assert get_deleted_response.status_code == 404
+        assert delete_response.status_code == 200

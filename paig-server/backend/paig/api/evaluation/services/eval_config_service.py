@@ -35,11 +35,11 @@ class EvaluationConfigService:
 
     @Transactional(propagation=Propagation.REQUIRED)
     async def create_eval_config(self, body_params: dict):
+        app_ids = [int(app_id) for app_id in body_params.get('application_ids', '').split(',') if app_id.strip()]
+        apps = await self.eval_target_repository.get_applications_by_in_list('id', app_ids)
+        if len(apps) != len(app_ids):
+            raise BadRequestException("Application names not found")
         try:
-            app_ids = [int(app_id) for app_id in body_params.get('application_ids', '').split(',') if app_id.strip()]
-            apps = await self.eval_target_repository.get_applications_by_in_list('id', app_ids)
-            if len(apps) != len(app_ids):
-                raise BadRequestException("Application names not found")
             app_names = []
             for app in apps:
                 app_names.append(app.name)
@@ -57,10 +57,10 @@ class EvaluationConfigService:
 
     @Transactional(propagation=Propagation.REQUIRED)
     async def update_eval_config(self, config_id: int, body_params: dict):
+        eval_config_model = await self.eval_config_repository.get_eval_config_by_id(config_id)
+        if eval_config_model is None:
+            raise NotFoundException("Evaluation configuration not found")
         try:
-            eval_config_model = await self.eval_config_repository.get_eval_config_by_id(config_id)
-            if eval_config_model is None:
-                raise NotFoundException("Evaluation configuration not found")
             if 'categories' in body_params:
                 body_params['categories'] = json.dumps(body_params['categories'])
             if 'custom_prompts' in body_params:
@@ -76,10 +76,10 @@ class EvaluationConfigService:
 
     @Transactional(propagation=Propagation.REQUIRED)
     async def delete_eval_config(self, config_id: int):
+        eval_config_model = await self.eval_config_repository.get_eval_config_by_id(config_id)
+        if eval_config_model is None:
+            raise NotFoundException("Evaluation configuration not found")
         try:
-            eval_config_model = await self.eval_config_repository.get_eval_config_by_id(config_id)
-            if eval_config_model is None:
-                raise NotFoundException("Evaluation configuration not found")
             is_deleted = await self.eval_config_repository.delete_eval_config(eval_config_model)
             if is_deleted:
                 return {'message': 'Evaluation configuration deleted successfully'}
