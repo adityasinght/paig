@@ -74,7 +74,7 @@ const VEvalTargetForm = ({form}) => {
                 }).replace(' ', ''); // Format: HH:MM(am/pm)
                 return `eval-target-${formattedDate}${formattedTime}`;
             }
-            return '';
+            return name.value;
         };
     
         name.value = generateReportName();
