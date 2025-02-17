@@ -37,11 +37,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const VEvaluationCategories = observer(({ form, selectedCategories, showSuggested, handleToggle, filteredCategories, setSelectedCategories }) => {
+const VEvaluationCategories = observer(({ form, selectedCategories, showSuggested, handleToggle, filteredCategories, setSelectedCategories, _vState }) => {
   const { categories } = form.fields;
   const classes = useStyles();
 
   const handleCheckboxChange = (category) => {
+    _vState.errorMsg = '';
     const updatedCategories = selectedCategories.includes(category)
       ? selectedCategories.filter((c) => c !== category)
       : [...selectedCategories, category];
@@ -70,6 +71,15 @@ const VEvaluationCategories = observer(({ form, selectedCategories, showSuggeste
         label={<Typography variant="subtitle1">Suggested filters</Typography>}
         className="m-t-md m-b-md"
       />
+      {_vState.errorMsg && (
+        <Grid container spacing={3} className="m-b-sm">
+          <Grid item xs={12}>
+            <Alert severity="error">
+              {_vState.errorMsg}
+            </Alert>
+          </Grid>
+        </Grid>
+      )}
       <Paper className={classes.paper} elevation={0}>
         {filteredCategories.length === 0 ? (   
           <Grid container spacing={2} className="align-items-center m-t-md m-b-md justify-center">

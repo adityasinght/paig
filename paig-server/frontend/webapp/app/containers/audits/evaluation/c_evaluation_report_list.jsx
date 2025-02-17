@@ -17,7 +17,7 @@ import {IncludeExcludeComponent} from 'common-ui/components/v_search_component';
 import {evaluation_form_def} from 'components/audits/evaluation/v_evaluation_details_form';
 import VEvaluationReportTable from 'components/audits/evaluation/v_evaluation_reports_list';
 const CATEGORIES = {
-  Owner: { multi: false, category: "Owner", type: "text", key: 'owner' },
+  ReportName: { multi: false, category: "Report Name", type: "text", key: 'name' },
   Application: { multi: false, category: "Application", type: "text", key: 'application_names' },
   Status: { multi: false, category: "Status", type: "text", key: 'status', options: () => ['In Progress', 'Completed', 'Failed'] }
 }
@@ -48,7 +48,7 @@ class CEvaluationReportsList extends Component {
 
     this.cEvalReports = f.initCollection();
     this.cEvalReports.params = {
-      size: 120,
+      size: 15,
       sort: 'create_time,desc',
       fromTime: this.dateRangeDetail.daterange[0].valueOf(),
       toTime: this.dateRangeDetail.daterange[1].valueOf()

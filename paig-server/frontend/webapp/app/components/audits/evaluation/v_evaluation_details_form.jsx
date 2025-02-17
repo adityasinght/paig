@@ -10,7 +10,7 @@ import {FormGroupInput} from 'common-ui/components/form_fields';
 import CEvaluationAppsList from  'components/audits/evaluation/v_evaluation_list_applications'
 import { Typography } from '@material-ui/core';
 
-const VEvaluationDetailsForm = observer(({form}) => {
+const VEvaluationDetailsForm = observer(({form, _vState}) => {
   const { name } = form.fields;
 
   return (
@@ -34,7 +34,7 @@ const VEvaluationDetailsForm = observer(({form}) => {
       <Typography variant="h6" data-testid="header" className='m-b-sm'>
         Application Configurations
       </Typography>
-      <CEvaluationAppsList form={form}></CEvaluationAppsList>
+      <CEvaluationAppsList form={form} _vState={_vState}></CEvaluationAppsList>
     </Box>
   );
 })

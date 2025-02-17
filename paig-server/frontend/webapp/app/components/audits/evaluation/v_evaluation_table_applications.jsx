@@ -18,10 +18,13 @@ class VEvaluationAppsTable extends Component{
   }
 
   handleSelectRow = (id, target_id) => {
+    this.props.parent_vState.errorMsg = '';
     this.setState((prevState) => {
       let selectedRows = [...prevState.selectedRows];
-      let selectedTargetIds = this.props.form.fields.application_ids.value.split(',').filter(Boolean);
-      
+      let selectedTargetIds = this.props.form.fields.application_ids.value;
+      if (selectedTargetIds === '') {
+        selectedTargetIds = [];
+      }
       if (selectedRows.includes(id)) {
         selectedRows = selectedRows.filter(rowId => rowId !== id);
         selectedTargetIds = selectedTargetIds.filter(tid => tid !== target_id);
@@ -32,12 +35,11 @@ class VEvaluationAppsTable extends Component{
         return { showAlert: true };
       }
 
-      this.props.form.fields.application_ids.value = selectedTargetIds.join(',');
+      this.props.form.fields.application_ids.value = selectedTargetIds;
       
       if (this.props.onSelectionChange) {
         this.props.onSelectionChange(selectedRows);
       }
-      
       return { selectedRows, showAlert: false };
     });
   }
@@ -89,14 +91,23 @@ class VEvaluationAppsTable extends Component{
   handleContextMenuSelection = () => {}
 
   render() {
-    const { data, pageChange } = this.props;
+    const { data, pageChange, parent_vState} = this.props;
     return (
       <>
         {this.state.showAlert && (
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Alert severity="error"  onClose={this.handleCloseAlert}>
+              <Alert severity="error">
                 Only two applications can be selected
+              </Alert>
+            </Grid>
+          </Grid>
+        )}
+        {parent_vState.errorMsg && (
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Alert severity="error">
+                {parent_vState.errorMsg}
               </Alert>
             </Grid>
           </Grid>

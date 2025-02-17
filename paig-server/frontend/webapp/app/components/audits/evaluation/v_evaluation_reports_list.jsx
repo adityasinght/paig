@@ -120,7 +120,7 @@ class VEvaluationReportTable extends Component{
   };
 
   getRowData = (model) => {
-    const {handleReRun, handleView, permission, importExportUtil, handleInvite} = this.props;
+    const {handleReRun, handleView, permission, importExportUtil, handleDelete} = this.props;
     let rows = [
       <TableCell key="1">{model.name}</TableCell>,
       <TableCell key="2">{model.config_name || "--"}</TableCell>,
@@ -147,7 +147,7 @@ class VEvaluationReportTable extends Component{
           permission={permission}
           showPreview={false}
           hideDelete={false}
-          onPreviewClick={() => handleView(model)}
+          onDeleteClick={() => handleDelete(model)}
         />
       </TableCell>
     ]

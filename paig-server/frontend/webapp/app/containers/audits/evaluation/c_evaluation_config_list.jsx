@@ -19,7 +19,7 @@ import {evaluation_form_def} from 'components/audits/evaluation/v_evaluation_det
 const CATEGORIES = {
   Name: { multi: false, category: "Name", type: "text", key: 'name' },
   EvaluationPurpose: { multi: false, category: "Evaluation Purpose", type: "text", key: 'purpose' },
-  Purpose: { multi: false, category: "Purpose", type: "text", key: 'owner' }
+  ApplicationName: { multi: false, category: "Application Name", type: "text", key: 'application_names' }
 }
 
 @inject('evaluationStore')
@@ -156,7 +156,7 @@ class CEvaluationConfigList extends Component {
       btnOkVariant: 'text'
     })
     .then((confirm) => {
-      this.props.evaluationStore.deleteEvalConfig(model.target_id,{
+      this.props.evaluationStore.deleteEvalConfig(model.id,{
         models: this.cEvalConfigs
       })
       .then(() => {

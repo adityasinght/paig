@@ -29,7 +29,8 @@ class CEvaluationForm extends Component {
     application: '',
     saving: false,
     purposeResponse: null,
-    static_prompts: [{"prompt": "", "criteria": ""}]
+    static_prompts: [{"prompt": "", "criteria": ""}],
+    errorMsg: "",
   }
 	constructor(props) {
 		super(props);
@@ -56,7 +57,7 @@ class CEvaluationForm extends Component {
       name: formData.name,
       categories: formData.categories,
       custom_prompts: [],
-      application_ids: formData.application_ids,
+      application_ids: formData.application_ids.join(','),
       report_name: formData.report_name
     };
 
@@ -87,8 +88,13 @@ class CEvaluationForm extends Component {
     const form = this.evalForm;
     if (activeStep === 0) {
       const nameField = form.fields.name;
+      const application_ids = form.fields.application_ids;
       await nameField.validate(true);
       if (!nameField.valid) {
+        return;
+      }
+      if (application_ids.value.length === 0 || application_ids.value === '') {
+        this._vState.errorMsg = "Please select atleast one application"
         return;
       }
     } else if (activeStep == 1) {
@@ -146,13 +152,19 @@ class CEvaluationForm extends Component {
 
   handleSaveConfiguration = async () => {
     const form = this.evalForm;
+    const categories = form.fields.categories;
+    await categories.validate(true);
+    if (categories.value.length === 0) {
+      this._vState.errorMsg = "Please select atleast one category"
+      return;
+    }
     const formData = form.toJSON();
     const data = {
       purpose: formData.purpose,
       name: formData.name,
       categories: formData.categories,
       custom_prompts: [],
-      application_ids: formData.application_ids
+      application_ids: formData.application_ids.join(',')
     };
 
     try {
@@ -169,6 +181,13 @@ class CEvaluationForm extends Component {
   } 
 
   openRunReportModal = async () => {
+    const form = this.evalForm;
+    const categories = form.fields.categories;
+    await categories.validate(true);
+    if (categories.value.length === 0) {
+      this._vState.errorMsg = "Please select atleast one category"
+      return;
+    }
     if (this.runReportModalRef.current) {
       this.runReportModalRef.current.show({
         title: 'Run Report',
@@ -257,7 +276,7 @@ class CEvaluationForm extends Component {
         </Grid>
       </Paper>
       <FSModal ref={this.runReportModalRef} dataResolve={this.handleCreate}>
-        <VRunReportForm form={this.evalForm} />
+        <VRunReportForm form={this.evalForm}/>
       </FSModal>
 	  </BaseContainer>
 	)}

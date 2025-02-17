@@ -272,9 +272,10 @@ class CEvaluationAppsList extends Component {
                     applicationKeyMap={this.applicationKeyMap}
                     handleDelete={this.handleDelete}
                     handleEdit={this.handleEdit}
+                    parent_vState={this.props._vState}
                 />
                 <FSModal ref={this.modalRef} dataResolve={this.resolveForm}>
-                    <VEvalTargetForm form={this.form} />
+                    <VEvalTargetForm form={this.form} _vState={this.props._vState}/>
                 </FSModal>
             </>
         );

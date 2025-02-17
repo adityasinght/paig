@@ -16,6 +16,9 @@ class CEvaluationCategoriesForm extends Component {
     const evalCategories = _vState.purposeResponse;
     const suggestedCategories = evalCategories.suggested_categories.map((category) => category.Name);
     this.props.form.fields.categories.value = suggestedCategories;
+    if (suggestedCategories.length === 0) {
+      this.setState({showSuggested: false})
+    }
     this.setState({ selectedCategories: suggestedCategories });
   }
 
@@ -43,6 +46,7 @@ class CEvaluationCategoriesForm extends Component {
         handleToggle={this.handleToggle}
         filteredCategories={filteredCategories}
         setSelectedCategories={this.setSelectedCategories}
+        _vState={_vState}
       />
     );
   }
