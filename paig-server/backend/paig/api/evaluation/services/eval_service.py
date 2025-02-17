@@ -104,7 +104,6 @@ def threaded_run_evaluation(eval_id, eval_config, target_hosts, application_name
             verbose=False
         )
         logger.info('Evaluation completed with status ' + str(report['status']))
-        print(report)
         try:
             if report['status'] == 'success':
                 update_eval_params = prepare_report_format(report['result'], update_eval_params)

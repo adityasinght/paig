@@ -6,6 +6,8 @@ from core.utils import SingletonDepends
 from core.exceptions import NotFoundException, BadRequestException
 from core.controllers.paginated_response import create_pageable_response
 from api.evaluation.api_schemas.eval_schema import BaseEvaluationView
+from server import logger
+
 
 class EvaluationController:
 
@@ -32,7 +34,7 @@ class EvaluationController:
             resp = await self.evaluation_service.run_evaluation(eval_config_id, user, base_run_id=None, report_name=report_name)
             return resp
         except Exception as e:
-            print(traceback.print_exc())
+            logger.error(f"Error while running evaluation: {str(e)}")
             return {"error": str(e)}
 
     async def get_evaluation_results(self, include_filters, exclude_filters, page, size, sort, min_time, max_time):
