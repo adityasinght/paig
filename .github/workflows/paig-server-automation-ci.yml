@@ -19,7 +19,6 @@ permissions:
 
 jobs:
   build_and_test:
-    if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4  # Ensure the repo is checked out
@@ -92,7 +91,7 @@ jobs:
     - name: Run Paig Server
       run: |
         . venv/bin/activate
-        paig-server run --background true
+        paig-server run
 
     - name: Install Cypress Dependencies
       run: |
@@ -104,6 +103,7 @@ jobs:
       with:
         working-directory: paig-server/automation
         wait-on: http://localhost:4545
+        wait-on-timeout: 600
         browser: chrome
         headless: true
         env: |
@@ -134,3 +134,10 @@ jobs:
       run: |
         . venv/bin/activate
         paig-server stop
+
+    - name: Upload Paig Server Logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: paig-server-logs
+        path: logs/paig.log
