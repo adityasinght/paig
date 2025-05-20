@@ -26,6 +26,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from api.governance.database.db_models import ai_app_model, ai_app_policy_model
+from api.governance.database.db_models import ai_asset_model, ai_usage_event_model, ai_user_model
 from api.governance.database.db_models import vector_db_model, vector_db_policy_model
 from api.governance.database.db_models import ai_app_config_model
 from api.governance.database.db_models import metadata_key_model, metadata_value_model
