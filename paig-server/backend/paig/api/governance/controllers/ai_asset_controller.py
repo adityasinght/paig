@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from core.controllers.paginated_response import Pageable
 from core.db_session import Transactional, Propagation
@@ -87,9 +87,27 @@ class AIAssetController:
     @Transactional(propagation=Propagation.REQUIRED)
     async def delete_ai_asset(self, id: int):
         """
-        Delete an AI asset by its ID.
+        Delete an AI Asset by its ID.
 
         Args:
-            id (int): The ID of the AI asset to delete.
+            id (int): The ID of the AI Asset to delete.
         """
         await self.ai_asset_service.delete_ai_asset(id)
+
+    async def get_ai_asset_stats(self) -> Dict:
+        """
+        Get comprehensive statistics about AI Assets in the system.
+        """
+        return await self.ai_asset_service.get_ai_asset_stats()
+
+    async def get_user_usage_stats(self) -> Dict:
+        """
+        Get statistics about AI Asset usage by users.
+        """
+        return await self.ai_asset_service.get_user_usage_stats()
+
+    async def get_model_usage_stats(self) -> Dict:
+        """
+        Get statistics about AI Asset usage by model.
+        """
+        return await self.ai_asset_service.get_model_usage_stats()

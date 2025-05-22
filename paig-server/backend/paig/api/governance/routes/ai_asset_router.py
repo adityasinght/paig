@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from fastapi import APIRouter, Depends, status, Query
 from core.controllers.paginated_response import Pageable
 from api.governance.api_schemas.ai_asset import (
@@ -12,6 +12,7 @@ from core.utils import SingletonDepends
 from core.utils import alias_field_to_column_name
 
 ai_asset_router = APIRouter()
+stats_router = APIRouter()
 
 ai_asset_controller_instance = Depends(SingletonDepends(AIAssetController, called_inside_fastapi_depends=True))
 
@@ -110,3 +111,35 @@ async def delete_ai_asset(
         ai_asset_controller: Controller instance for AI asset operations
     """
     await ai_asset_controller.delete_ai_asset(id)
+
+@ai_asset_router.get("/stats/assets_usage", response_model=Dict, status_code=status.HTTP_200_OK)
+async def get_ai_asset_stats(
+        ai_asset_controller: AIAssetController = ai_asset_controller_instance
+) -> Dict:
+    """
+    Get comprehensive statistics about AI Assets in the system.
+    This endpoint provides various metrics and counts about AI Assets.
+    """
+    return await ai_asset_controller.get_ai_asset_stats()
+
+
+
+@stats_router.get("/user_usage", response_model=Dict)
+async def get_user_usage_stats(
+    controller: AIAssetController = ai_asset_controller_instance
+) -> Dict:
+    """
+    Get statistics about AI Asset usage by users.
+    """
+    return await controller.get_user_usage_stats()
+
+@stats_router.get("/model_usage", response_model=Dict)
+async def get_model_usage_stats(
+    controller: AIAssetController = ai_asset_controller_instance
+) -> Dict:
+    """
+    Get statistics about AI Asset usage by model.
+    """
+    return await controller.get_model_usage_stats()
+
+

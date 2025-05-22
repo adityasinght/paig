@@ -78,3 +78,124 @@ class EvaluationResultService:
 
     async def get_all_categories_from_result(self, uuid):
         return await self.evaluation_response_repository.get_all_categories_from_result(uuid)
+
+    async def get_stats_matrix(self):
+        """
+        Get a matrix of evaluation statistics across different dimensions.
+
+        Returns:
+            Dict: A dictionary containing evaluation statistics including:
+                - total_evaluations (int): Total number of evaluations performed
+                - evaluations_by_status (Dict[str, int]): Count of evaluations by status
+                - evaluations_by_severity (Dict[str, int]): Count of evaluations by severity level
+                - evaluations_by_category (Dict[str, int]): Count of evaluations by category
+                - evaluations_by_application (Dict[str, Dict]): Statistics per application
+                - recent_evaluations (List[Dict]): List of recent evaluations
+                - pass_fail_stats (Dict[str, float]): Overall pass/fail statistics
+        """
+        # TODO: Implement the actual logic to get the statistics
+        stats = {
+            "total_evaluations": 150,
+            "evaluations_by_status": {
+                "completed": 120,
+                "in_progress": 20,
+                "failed": 10
+            },
+            "evaluations_by_severity": {
+                "CRITICAL": 15,
+                "HIGH": 35,
+                "MEDIUM": 45,
+                "LOW": 55
+            },
+            "evaluations_by_category": {
+                "Hallucination": 40,
+                "Toxicity": 30,
+                "Bias": 25,
+                "Factual Accuracy": 35,
+                "Privacy": 20
+            },
+            "evaluations_by_application": {
+                "chatbot-app": {
+                    "total_tests": 45,
+                    "passed": 35,
+                    "failed": 8,
+                    "error": 2,
+                    "avg_severity": "MEDIUM",
+                    "categories": {
+                        "Hallucination": 12,
+                        "Toxicity": 8,
+                        "Bias": 15,
+                        "Factual Accuracy": 10
+                    }
+                },
+                "qa-system": {
+                    "total_tests": 38,
+                    "passed": 30,
+                    "failed": 6,
+                    "error": 2,
+                    "avg_severity": "LOW",
+                    "categories": {
+                        "Hallucination": 10,
+                        "Toxicity": 5,
+                        "Bias": 12,
+                        "Factual Accuracy": 11
+                    }
+                },
+                "content-generator": {
+                    "total_tests": 42,
+                    "passed": 32,
+                    "failed": 7,
+                    "error": 3,
+                    "avg_severity": "HIGH",
+                    "categories": {
+                        "Hallucination": 15,
+                        "Toxicity": 12,
+                        "Bias": 8,
+                        "Privacy": 7
+                    }
+                }
+            },
+            "recent_evaluations": [
+                {
+                    "eval_id": "eval-2024-03-15-001",
+                    "application": "chatbot-app",
+                    "timestamp": "2024-03-15T10:30:00Z",
+                    "status": "completed",
+                    "severity": "MEDIUM",
+                    "pass_rate": 0.78
+                },
+                {
+                    "eval_id": "eval-2024-03-14-002",
+                    "application": "qa-system",
+                    "timestamp": "2024-03-14T15:45:00Z",
+                    "status": "completed",
+                    "severity": "LOW",
+                    "pass_rate": 0.85
+                },
+                {
+                    "eval_id": "eval-2024-03-14-001",
+                    "application": "content-generator",
+                    "timestamp": "2024-03-14T09:15:00Z",
+                    "status": "completed",
+                    "severity": "HIGH",
+                    "pass_rate": 0.65
+                }
+            ],
+            "pass_fail_stats": {
+                "overall_pass_rate": 0.76,
+                "pass_rate_by_category": {
+                    "Hallucination": 0.70,
+                    "Toxicity": 0.85,
+                    "Bias": 0.75,
+                    "Factual Accuracy": 0.80,
+                    "Privacy": 0.90
+                },
+                "pass_rate_by_severity": {
+                    "CRITICAL": 0.60,
+                    "HIGH": 0.65,
+                    "MEDIUM": 0.75,
+                    "LOW": 0.85
+                }
+            }
+        }
+        return stats

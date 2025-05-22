@@ -95,3 +95,9 @@ async def get_all_categories_from_result(
     evaluation_controller: EvaluationController = evaluator_controller_instance,
 ):
    return await evaluation_controller.get_all_categories_from_result(eval_uuid)
+
+@evaluation_result_router.get("/stats/matrix")
+async def get_stats_matrix(
+    evaluation_controller: EvaluationController = evaluator_controller_instance,
+):
+    return await evaluation_controller.get_stats_matrix()

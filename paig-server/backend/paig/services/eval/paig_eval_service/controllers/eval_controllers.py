@@ -118,3 +118,6 @@ class EvaluationController:
 
     async def get_all_categories_from_result (self, eval_uuid):
         return await self.evaluation_result_service.get_all_categories_from_result(eval_uuid)
+    
+    async def get_stats_matrix(self):
+        return await self.evaluation_result_service.get_stats_matrix()
