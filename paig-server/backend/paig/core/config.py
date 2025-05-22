@@ -52,6 +52,12 @@ def load_config_file():
 
 
 @lru_cache()
+def get_settings():
+    """Get the merged configuration settings."""
+    return load_config_file()
+
+
+@lru_cache()
 def load_default_ai_config():
     config_path = os.getenv('CONFIG_PATH')
     if config_path is None:

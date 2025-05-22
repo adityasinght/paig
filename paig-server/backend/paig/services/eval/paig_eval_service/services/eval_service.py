@@ -3,6 +3,7 @@ import json
 import os
 import traceback
 import uuid
+from datetime import datetime
 
 from ..database.db_operations.eval_config_repository import EvaluationConfigHistoryRepository
 from ..database.db_operations.eval_target_repository import EvaluationTargetRepository
@@ -14,6 +15,8 @@ import logging
 from core.utils import current_utc_time, replace_timezone
 from core.exceptions import BadRequestException, TooManyRequestsException
 from core.config import load_config_file
+from core.opensearch.eval_service import EvalOpenSearchService
+from core.opensearch.opensearch_service import OpenSearchService
 
 
 config = load_config_file()
@@ -121,7 +124,7 @@ async def insert_eval_results(eval_id, eval_run_id, report):
 
 
 
-def threaded_run_evaluation(eval_id, eval_run_id, eval_config, target_hosts, application_names):
+def threaded_run_evaluation(eval_id, eval_run_id, eval_config, target_hosts, application_names, eval_opensearch):
     async def async_operations():
         # Update config in database
         update_eval_params = dict()
@@ -192,6 +195,7 @@ def threaded_run_evaluation(eval_id, eval_run_id, eval_config, target_hosts, app
                 logger.error('Evaluation failed:- ' + str(report['message']))
             await update_table_fields('eval_run', update_eval_params, 'eval_id', eval_id)
             await insert_eval_results(eval_id, eval_run_id, report)
+            await eval_opensearch.insert_eval_results(eval_id, eval_run_id, report)
         except Exception as err:
             logger.error('Error while updating DB: ' + str(err))
             logger.error(str(traceback.print_exc()))
@@ -208,11 +212,13 @@ class EvaluationService:
         self,
         evaluation_repository: EvaluationRepository = SingletonDepends(EvaluationRepository),
         eval_config_history_repository: EvaluationConfigHistoryRepository = SingletonDepends(EvaluationConfigHistoryRepository),
-        eval_target_repository: EvaluationTargetRepository = SingletonDepends(EvaluationTargetRepository)
+        eval_target_repository: EvaluationTargetRepository = SingletonDepends(EvaluationTargetRepository),
+        opensearch_service: OpenSearchService = SingletonDepends(OpenSearchService)
     ):
         self.evaluation_repository = evaluation_repository
         self.eval_config_history_repository = eval_config_history_repository
         self.eval_target_repository = eval_target_repository
+        self.eval_opensearch = EvalOpenSearchService(opensearch_service)
 
     def get_paig_evaluator(self):
         return PAIGEvaluator()
@@ -247,14 +253,18 @@ class EvaluationService:
     async def run_evaluation(self, eval_config_id, owner, base_run_id=None, report_name=None, auth_user=None):
         if not await self.validate_eval_availability():
             raise TooManyRequestsException('The maximum number of evaluations has already been reached. Please try again once one has completed.')
+        
         eval_config = await self.eval_config_history_repository.get_eval_config_by_config_id(eval_config_id)
         if eval_config is None:
             raise BadRequestException('Configuration does not exists')
+        
         app_ids = [int(app_id) for app_id in (eval_config.application_ids).split(',') if app_id.strip()]
         apps = await self.eval_target_repository.get_applications_by_in_list('id', app_ids)
         if len(apps) != len(app_ids):
             raise BadRequestException('Applications are not configured properly.Please check the configuration')
+        
         target_hosts, application_names, target_users = await self.get_target_hosts(apps, auth_user)
+        
         # Insert evaluation record
         eval_id = str(uuid.uuid4())
         eval_params = {
@@ -267,12 +277,19 @@ class EvaluationService:
             "application_names": ','.join(application_names),
             "base_run_id": base_run_id,
             "name": report_name,
-            "target_users": ','.join(target_users)
+            "target_users": ','.join(target_users),
+            "tenant_id": get_tenant_id()
         }
-        eval_model= await self.evaluation_repository.create_new_evaluation(eval_params)
+        
+        eval_model = await self.evaluation_repository.create_new_evaluation(eval_params)
         eval_run_id = eval_model.id
+        
+        # Store in OpenSearch
+        await self._store_eval_run_in_opensearch(eval_params)
+        
         if base_run_id is None:
             eval_config.generated_config = None
+            
         asyncio.create_task(
             asyncio.to_thread(
                 threaded_run_evaluation,
@@ -280,7 +297,8 @@ class EvaluationService:
                 eval_run_id,
                 eval_config,
                 target_hosts,
-                application_names
+                application_names,
+                self.eval_opensearch  # Pass the OpenSearch service to the thread
             )
         )
         return
@@ -341,3 +359,91 @@ class EvaluationService:
                 await self.evaluation_repository.update_evaluation({'status': 'FAILED'}, evaluation)
                 active_evals -= 1
         return  active_evals < MAX_CONCURRENT_EVALS
+
+    async def _store_eval_run_in_opensearch(self, eval_params: dict) -> None:
+        """Store evaluation run details in OpenSearch."""
+        try:
+            await self.eval_opensearch.insert_eval_run({
+                **eval_params,
+                "create_time": current_utc_time(),
+                "total_prompts": 0,
+                "total_passed": 0,
+                "total_failed": 0,
+                "execution_time": 0.0
+            })
+        except Exception as e:
+            logger.error(f"Failed to store evaluation run in OpenSearch: {str(e)}")
+
+    async def _update_eval_run_in_opensearch(self, eval_id: str, update_data: dict) -> None:
+        """Update evaluation run details in OpenSearch."""
+        try:
+            await self.eval_opensearch.update_eval_run(eval_id, update_data)
+        except Exception as e:
+            logger.error(f"Failed to update evaluation run in OpenSearch: {str(e)}")
+
+    async def _store_eval_results_in_opensearch(self, eval_id: str, eval_run_id: str, report: dict) -> None:
+        """Store evaluation results in OpenSearch."""
+        try:
+            results = report.get("result", {}).get("results", {})
+            if not results:
+                return
+
+            # Process prompts and responses
+            processed_prompts = {}
+            responses = []
+            
+            for res in results.get("results", []):
+                test_idx = res.get("testIdx")
+                if test_idx not in processed_prompts:
+                    prompt_uuid = str(uuid.uuid4())
+                    prompt_data = {
+                        "prompt_uuid": prompt_uuid,
+                        "eval_id": eval_id,
+                        "eval_run_id": eval_run_id,
+                        "tenant_id": get_tenant_id(),
+                        "prompt": res.get("prompt", {}).get("raw", ""),
+                        "create_time": current_utc_time()
+                    }
+                    await self.eval_opensearch.insert_eval_prompt(prompt_data)
+                    processed_prompts[test_idx] = prompt_uuid
+
+                response_data = {
+                    "eval_result_prompt_uuid": processed_prompts[test_idx],
+                    "eval_id": eval_id,
+                    "eval_run_id": eval_run_id,
+                    "tenant_id": get_tenant_id(),
+                    "application_name": res.get("provider", {}).get("label", ""),
+                    "response": res.get("response", {}).get("output", "NA"),
+                    "failure_reason": res.get("error") if res.get("failureReason") or not res.get("success") else None,
+                    "category_score": res.get("namedScores", {}),
+                    "status": "ERROR" if res.get("failureReason") == 2 else ("PASSED" if res.get("success") else "FAILED"),
+                    "create_time": current_utc_time()
+                }
+
+                if "testCase" in res and "metadata" in res["testCase"] and "pluginId" in res["testCase"]["metadata"]:
+                    category = res["testCase"]["metadata"]["pluginId"]
+                    response_data.update({
+                        "category": category,
+                        "category_type": get_security_plugin_map().get(category, {}).get("type", "Custom"),
+                        "category_severity": get_security_plugin_map().get(category, {}).get("severity", "LOW") if response_data["status"] != "PASSED" else None
+                    })
+
+                responses.append(response_data)
+
+            await self.eval_opensearch.bulk_insert_eval_responses(responses)
+
+            # Update evaluation run with final statistics
+            total_prompts = len(processed_prompts)
+            total_passed = sum(1 for r in responses if r["status"] == "PASSED")
+            total_failed = sum(1 for r in responses if r["status"] in ["FAILED", "ERROR"])
+            
+            await self._update_eval_run_in_opensearch(eval_id, {
+                "total_prompts": total_prompts,
+                "total_passed": total_passed,
+                "total_failed": total_failed,
+                "update_time": current_utc_time()
+            })
+
+        except Exception as e:
+            logger.error(f"Failed to store evaluation results in OpenSearch: {str(e)}")
+            logger.error(traceback.format_exc())
