@@ -11,10 +11,12 @@ from core.exceptions.error_messages_parser import get_error_message, ERROR_RESOU
 from core.utils import validate_id, validate_string_data, validate_boolean, generate_unique_identifier_key, \
     SingletonDepends
 from api.governance.api_schemas.ai_app import AIApplicationView, AIApplicationFilter, GuardrailApplicationsAssociation
+from api.governance.api_schemas.ai_asset import CreateAIAssetView
 from api.governance.api_schemas.vector_db import VectorDBFilter
 from api.governance.database.db_models.ai_app_model import AIApplicationModel
 from api.governance.database.db_operations.ai_app_repository import AIAppRepository
 from api.governance.database.db_operations.vector_db_repository import VectorDBRepository
+from api.governance.services.ai_asset_service import AIAssetService
 from core.constants import PORT
 from core.config import load_config_file
 
@@ -195,12 +197,15 @@ class AIAppRequestValidator:
 class AIAppService(BaseController[AIApplicationModel, AIApplicationView]):
 
     def __init__(self, ai_app_repository: AIAppRepository = SingletonDepends(AIAppRepository),
-                 ai_app_request_validator: AIAppRequestValidator = SingletonDepends(AIAppRequestValidator)):
+                 ai_app_request_validator: AIAppRequestValidator = SingletonDepends(AIAppRequestValidator),
+                 ai_asset_service: AIAssetService = SingletonDepends(AIAssetService)):
         """
         Initialize the AIAppService.
 
         Args:
             ai_app_repository (AIAppRepository): The repository handling AI application database operations.
+            ai_app_request_validator (AIAppRequestValidator): The validator for AI application requests.
+            ai_asset_service (AIAssetService): The service for handling AI Asset operations.
         """
         super().__init__(
             ai_app_repository,
@@ -208,6 +213,7 @@ class AIAppService(BaseController[AIApplicationModel, AIApplicationView]):
             AIApplicationView
         )
         self.ai_app_request_validator = ai_app_request_validator
+        self.ai_asset_service = ai_asset_service
 
     def get_repository(self) -> AIAppRepository:
         """
@@ -253,7 +259,7 @@ class AIAppService(BaseController[AIApplicationModel, AIApplicationView]):
 
     async def create_ai_application(self, request: AIApplicationView) -> AIApplicationView:
         """
-        Create a new AI application.
+        Create a new AI application and associated AI Asset.
 
         Args:
             request (AIApplicationView): The view object representing the AI application to create.
@@ -263,7 +269,29 @@ class AIAppService(BaseController[AIApplicationModel, AIApplicationView]):
         """
         await self.ai_app_request_validator.validate_create_request(request)
         request.application_key = generate_unique_identifier_key()
-        return await self.create_record(request)
+        created_app = await self.create_record(request)
+
+        # Create associated AI Asset
+        ai_asset_request = CreateAIAssetView(
+            name=created_app.name,
+            location="internal",  # Default location for AI Application assets
+            asset_type="AI APPLICATION",
+            owner="system",
+            source="PAIG",
+            description=f"Asset for AI Application: {created_app.description}" if created_app.description else None,
+            ai_application_id=created_app.id
+        )
+        
+        try:
+            await self.ai_asset_service.create_ai_asset(ai_asset_request)
+        except Exception as e:
+            # Log the error but don't fail the application creation
+            print(f"Failed to create AI Asset for application {created_app.name}: {str(e)}")
+            # Optionally, you could delete the created application here if asset creation is critical
+            # await self.delete_record(created_app.id)
+            # raise BadRequestException("Failed to create associated AI Asset")
+
+        return created_app
 
     async def get_ai_application_by_id(self, id: int) -> AIApplicationView:
         """
