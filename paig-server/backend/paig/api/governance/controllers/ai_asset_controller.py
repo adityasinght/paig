@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from core.controllers.paginated_response import Pageable
 from core.db_session import Transactional, Propagation
@@ -111,3 +111,29 @@ class AIAssetController:
         Get statistics about AI Asset usage by model.
         """
         return await self.ai_asset_service.get_model_usage_stats()
+    
+    async def get_count(
+        self,
+        fields: List[str],
+        from_time: Optional[str] = None,
+        to_time: Optional[str] = None,
+        index: Optional[str] = None
+    ) -> Dict:
+        """
+        Get field counts from OpenSearch with optional time range filtering.
+
+        Args:
+            fields (List[str]): List of fields to get counts for
+            from_time (Optional[str]): Start time in ISO format
+            to_time (Optional[str]): End time in ISO format
+            index (Optional[str]): OpenSearch index to query
+
+        Returns:
+            Dict: Counts for each requested field with breakdowns
+        """
+        return await self.ai_asset_service.get_count(
+            fields=fields,
+            from_time=from_time,
+            to_time=to_time,
+            index=index
+        )

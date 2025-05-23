@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from fastapi import APIRouter, Depends, status, Query
 from core.controllers.paginated_response import Pageable
 from api.governance.api_schemas.ai_asset import (
@@ -10,6 +10,7 @@ from api.governance.api_schemas.ai_asset import (
 from api.governance.controllers.ai_asset_controller import AIAssetController
 from core.utils import SingletonDepends
 from core.utils import alias_field_to_column_name
+from core.exceptions.base import BadRequestException
 
 ai_asset_router = APIRouter()
 stats_router = APIRouter()
@@ -143,3 +144,35 @@ async def get_model_usage_stats(
     return await controller.get_model_usage_stats()
 
 
+@stats_router.get("/count", response_model=Dict)
+async def get_counts(
+    fields: str,
+    from_time: Optional[str] = None,
+    to_time: Optional[str] = None,
+    index: Optional[str] = None,
+    controller: AIAssetController = ai_asset_controller_instance
+) -> Dict:
+    """
+    Get field counts from OpenSearch with optional time range filtering.
+
+    Args:
+        fields (str): Comma-separated list of fields to get counts for
+        from_time (str, optional): Start time in ISO format (e.g., 2024-03-15T00:00:00Z)
+        to_time (str, optional): End time in ISO format (e.g., 2024-03-15T23:59:59Z)
+        index (str, optional): OpenSearch index to query (defaults to eval_runs)
+
+    Returns:
+        Dict: Counts for each requested field with breakdowns
+    """
+    # Split the comma-separated fields
+    field_list = [field.strip() for field in fields.split(',') if field.strip()]
+    
+    if not field_list:
+        raise BadRequestException("At least one field must be specified")
+        
+    return await controller.get_count(
+        fields=field_list,
+        from_time=from_time,
+        to_time=to_time,
+        index=index
+    )

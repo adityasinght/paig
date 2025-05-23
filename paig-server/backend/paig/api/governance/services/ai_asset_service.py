@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func, and_, desc
 from datetime import datetime, timedelta
@@ -8,6 +8,7 @@ from core.controllers.paginated_response import Pageable
 from core.exceptions import BadRequestException
 from core.exceptions.error_messages_parser import get_error_message, ERROR_RESOURCE_ALREADY_EXISTS
 from core.utils import validate_id, SingletonDepends
+from core.opensearch.opensearch_service import OpenSearchService
 from api.governance.api_schemas.ai_asset import (
     AIAssetView,
     AIAssetFilter,
@@ -16,6 +17,9 @@ from api.governance.api_schemas.ai_asset import (
 )
 from api.governance.database.db_models.ai_asset_model import AIAsset
 from api.governance.database.db_operations.ai_asset_repository import AIAssetRepository
+from core.config import load_config_file
+
+config = load_config_file()
 
 
 class AIAssetService(BaseController[AIAsset, AIAssetView]):
@@ -350,3 +354,73 @@ class AIAssetService(BaseController[AIAsset, AIAssetView]):
             }
         }
         return stats
+    
+    async def get_count(
+        self,
+        fields: List[str],
+        from_time: Optional[str] = None,
+        to_time: Optional[str] = None,
+        index: Optional[str] = None
+    ) -> Dict:
+        """
+        Get field counts from OpenSearch with optional time range filtering.
+
+        Args:
+            fields (List[str]): List of fields to get counts for
+            from_time (Optional[str]): Start time in ISO format
+            to_time (Optional[str]): End time in ISO format
+            index (Optional[str]): OpenSearch index to query
+
+        Returns:
+            Dict: Counts for each requested field with breakdowns
+        """
+        opensearch_service = OpenSearchService()
+        if index is None:
+            index = config.get('opensearch', {}).get('ai_usage_index', 'ai_usage_metrics')
+        
+        try:
+            # Ensure index exists with proper mapping
+            # await opensearch_service.ensure_ai_usage_index()
+            
+            # Validate time formats if provided
+            if from_time:
+                datetime.fromisoformat(from_time.replace('Z', '+00:00'))
+            if to_time:
+                datetime.fromisoformat(to_time.replace('Z', '+00:00'))
+                
+            # Get counts from OpenSearch
+            result = await opensearch_service.get_field_counts(
+                index=index,
+                fields=fields,
+                from_time=from_time,
+                to_time=to_time
+            )
+            
+            return {
+                "status": "success",
+                "data": result,
+                "metadata": {
+                    "time_range": {
+                        "from": from_time,
+                        "to": to_time
+                    },
+                    "fields": fields,
+                    "index": index
+                }
+            }
+            
+        except ValueError as e:
+            raise BadRequestException(f"Invalid datetime format: {str(e)}")
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "metadata": {
+                    "time_range": {
+                        "from": from_time,
+                        "to": to_time
+                    },
+                    "fields": fields,
+                    "index": index
+                }
+            }
